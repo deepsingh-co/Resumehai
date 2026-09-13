@@ -6,9 +6,10 @@ import { auth } from '../middleware/auth.js';
 const router = express.Router();
 router.use(auth);
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-});
+const getOpenAI = () => {
+  if (!process.env.OPENAI_API_KEY) return null;
+  return new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+};
 
 const generatePrompt = (type, content, context = {}) => {
   const prompts = {
@@ -32,7 +33,8 @@ router.post('/suggest', [
     return res.status(400).json({ errors: errors.array() });
   }
 
-  if (!process.env.OPENAI_API_KEY) {
+  const openai = getOpenAI();
+  if (!openai) {
     return res.status(503).json({ 
       message: 'AI service not configured',
       suggestion: 'Add OPENAI_API_KEY to environment variables'
