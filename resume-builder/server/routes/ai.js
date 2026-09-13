@@ -66,7 +66,8 @@ router.post('/suggest', [
 router.post('/analyze', [
   body('resume').isObject()
 ], async (req, res) => {
-  if (!process.env.OPENAI_API_KEY) {
+  const openai = getOpenAI();
+  if (!openai) {
     return res.status(503).json({ message: 'AI service not configured' });
   }
 
