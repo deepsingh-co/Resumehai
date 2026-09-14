@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import api from '../services/api';
 import toast from 'react-hot-toast';
 import {
@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import ResumePreview from '../components/ResumePreview';
 import AIAssistant from '../components/AIAssistant';
+import { demoResumes } from '../data/demoResumes';
 
 const SECTIONS = [
   { key: 'personalInfo', label: 'Personal Info' },
@@ -51,8 +52,16 @@ const initialResume = {
 export default function Editor() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const isNew = !id;
-  const [resume, setResume] = useState(initialResume);
+  const demoKey = searchParams.get('demo');
+  const templateParam = searchParams.get('template');
+  const [resume, setResume] = useState(() => {
+    if (demoKey && demoResumes[demoKey]) {
+      return { ...demoResumes[demoKey], template: templateParam || demoResumes[demoKey].template };
+    }
+    return { ...initialResume, template: templateParam || 'modern' };
+  });
   const [loading, setLoading] = useState(isNew ? false : true);
   const [saving, setSaving] = useState(false);
   const [expandedSections, setExpandedSections] = useState({ personalInfo: true });

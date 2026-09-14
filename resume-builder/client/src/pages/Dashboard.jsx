@@ -3,8 +3,9 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 import toast from 'react-hot-toast';
-import { Plus, Edit, Eye, Copy, Trash2, MoreVertical, Loader2 } from 'lucide-react';
+import { Plus, Edit, Eye, Copy, Trash2, MoreVertical, Loader2, X, Sparkles, FileText } from 'lucide-react';
 import LoadingSpinner from '../components/LoadingSpinner';
+import { demoResumes, templateInfo } from '../data/demoResumes';
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -13,6 +14,9 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState(null);
   const [dropdownOpen, setDropdownOpen] = useState(null);
+  const [showPicker, setShowPicker] = useState(false);
+  const [pickerStep, setPickerStep] = useState('template');
+  const [selectedTemplate, setSelectedTemplate] = useState('modern');
 
   useEffect(() => {
     fetchResumes();
@@ -53,6 +57,20 @@ export default function Dashboard() {
     }
   };
 
+  const handleCreateWithDemo = (demoKey) => {
+    const demoData = demoResumes[demoKey];
+    const data = encodeURIComponent(JSON.stringify(demoData));
+    navigate(`/resume/new?demo=${demoKey}&template=${selectedTemplate}`);
+    setShowPicker(false);
+    setPickerStep('template');
+  };
+
+  const handleCreateBlank = () => {
+    navigate(`/resume/new?template=${selectedTemplate}`);
+    setShowPicker(false);
+    setPickerStep('template');
+  };
+
   const formatDate = (date) => {
     return new Date(date).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -85,11 +103,85 @@ export default function Dashboard() {
             Welcome back, {user?.name}! Manage your resumes here.
           </p>
         </div>
-        <Link to="/resume/new" className="btn btn-primary">
+        <button onClick={() => setShowPicker(true)} className="btn btn-primary">
           <Plus size={18} />
           New Resume
-        </Link>
+        </button>
       </div>
+
+      {showPicker && (
+        <div className="modal-overlay" onClick={() => { setShowPicker(false); setPickerStep('template'); }}>
+          <div className="modal-content" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>{pickerStep === 'template' ? 'Choose a Template' : 'Start with a Demo'}</h2>
+              <button onClick={() => { setShowPicker(false); setPickerStep('template'); }} className="btn btn-ghost btn-sm">
+                <X size={20} />
+              </button>
+            </div>
+
+            {pickerStep === 'template' && (
+              <div className="modal-body">
+                <div className="template-grid">
+                  {Object.entries(templateInfo).map(([key, info]) => (
+                    <button
+                      key={key}
+                      className={`template-card ${selectedTemplate === key ? 'selected' : ''}`}
+                      onClick={() => setSelectedTemplate(key)}
+                    >
+                      <div className="template-preview" style={{ background: info.color }}>
+                        <div className="template-preview-lines">
+                          <div className="tpl-line long" style={{ background: 'rgba(255,255,255,0.9)' }} />
+                          <div className="tpl-line short" style={{ background: 'rgba(255,255,255,0.5)' }} />
+                          <div className="tpl-line" style={{ background: 'rgba(255,255,255,0.3)' }} />
+                          <div className="tpl-line long" style={{ background: 'rgba(255,255,255,0.3)' }} />
+                        </div>
+                      </div>
+                      <div className="template-info">
+                        <strong>{info.name}</strong>
+                        <span className="template-best">{info.bestFor}</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+                <div className="modal-actions">
+                  <button onClick={handleCreateBlank} className="btn btn-primary btn-lg" style={{ flex: 1 }}>
+                    <FileText size={18} /> Start Blank
+                  </button>
+                  <button onClick={() => setPickerStep('demo')} className="btn btn-secondary btn-lg" style={{ flex: 1 }}>
+                    <Sparkles size={18} /> Use a Demo
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {pickerStep === 'demo' && (
+              <div className="modal-body">
+                <p style={{ color: 'var(--color-text-muted)', marginBottom: '1.5rem', fontSize: '0.9375rem' }}>
+                  Start with a pre-filled resume and customize it to your needs.
+                </p>
+                <div className="demo-grid">
+                  {Object.entries(demoResumes).map(([key, demo]) => (
+                    <button key={key} className="demo-card" onClick={() => handleCreateWithDemo(key)}>
+                      <div className="demo-card-icon" style={{ background: templateInfo[demo.template]?.color || '#2563eb' }}>
+                        <Sparkles size={20} color="white" />
+                      </div>
+                      <div className="demo-card-info">
+                        <strong>{demo.title}</strong>
+                        <span>{demo.personalInfo.fullName} &middot; {templateInfo[demo.template]?.name} template</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+                <div className="modal-actions">
+                  <button onClick={() => setPickerStep('template')} className="btn btn-ghost btn-lg">
+                    Back
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {resumes.length === 0 ? (
         <div className="card" style={{ padding: '3rem', textAlign: 'center' }}>
@@ -102,10 +194,10 @@ export default function Dashboard() {
             </svg>
             <h3 className="empty-state-title">No resumes yet</h3>
             <p className="empty-state-text">Create your first resume to get started</p>
-            <Link to="/resume/new" className="btn btn-primary">
+            <button onClick={() => setShowPicker(true)} className="btn btn-primary">
               <Plus size={18} />
               Create Resume
-            </Link>
+            </button>
           </div>
         </div>
       ) : (
