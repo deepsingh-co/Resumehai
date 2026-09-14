@@ -235,6 +235,9 @@ input, textarea, select {
   background: white;
   color: #1e293b;
   min-height: 100vh;
+  --accent: #2563eb;
+  --accent-dark: #1e40af;
+  --accent-light: #dbeafe;
 }
 
 .resume-preview.modern {
@@ -253,9 +256,37 @@ input, textarea, select {
   font-family: 'Inter', sans-serif;
 }
 
+/* Font Styles */
+.resume-preview.font-serif {
+  font-family: 'Georgia', 'Times New Roman', serif;
+}
+
+.resume-preview.font-mono {
+  font-family: 'Fira Code', 'Courier New', monospace;
+}
+
+.resume-preview.font-handwriting {
+  font-family: 'Caveat', 'Patrick Hand', cursive;
+}
+
+.resume-preview.font-handwriting .resume-name {
+  font-family: 'Caveat', 'Patrick Hand', cursive;
+  font-size: 2.75rem;
+}
+
+.resume-preview.font-handwriting .section-heading {
+  font-family: 'Caveat', 'Patrick Hand', cursive;
+  font-size: 1.25rem;
+}
+
+.resume-preview.font-handwriting .item-title {
+  font-family: 'Caveat', 'Patrick Hand', cursive;
+  font-size: 1.25rem;
+}
+
 /* Modern Template */
 .modern .resume-header {
-  background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
   color: white;
   padding: 2.5rem 2rem;
 }
@@ -290,7 +321,7 @@ input, textarea, select {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #2563eb;
+  color: var(--accent);
   margin-bottom: 1rem;
   display: flex;
   align-items: center;
@@ -314,7 +345,7 @@ input, textarea, select {
 }
 
 .modern .item-company {
-  color: #2563eb;
+  color: var(--accent);
   font-weight: 500;
 }
 
@@ -602,7 +633,7 @@ input, textarea, select {
 
 /* Creative Template */
 .creative .resume-header {
-  background: linear-gradient(135deg, #7c3aed 0%, #ec4899 100%);
+  background: linear-gradient(135deg, var(--accent) 0%, #ec4899 100%);
   color: white;
   padding: 3rem 2rem;
   position: relative;
@@ -651,7 +682,7 @@ input, textarea, select {
 .creative .section-heading {
   font-size: 1rem;
   font-weight: 700;
-  color: #7c3aed;
+  color: var(--accent);
   margin-bottom: 1rem;
   display: flex;
   align-items: center;
@@ -662,14 +693,14 @@ input, textarea, select {
   content: '';
   width: 8px;
   height: 8px;
-  background: linear-gradient(135deg, #7c3aed, #ec4899);
+  background: linear-gradient(135deg, var(--accent), #ec4899);
   border-radius: 2px;
 }
 
 .creative .experience-item, .creative .education-item {
   margin-bottom: 1.5rem;
   padding-left: 1.5rem;
-  border-left: 2px solid #e0e7ff;
+  border-left: 2px solid var(--accent-light);
   position: relative;
 }
 
@@ -681,7 +712,7 @@ input, textarea, select {
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #7c3aed, #ec4899);
+  background: linear-gradient(135deg, var(--accent), #ec4899);
 }
 
 .creative .item-header {
@@ -697,7 +728,7 @@ input, textarea, select {
 }
 
 .creative .item-company {
-  color: #7c3aed;
+  color: var(--accent);
   font-weight: 500;
 }
 
@@ -749,13 +780,13 @@ input, textarea, select {
 }
 
 .creative .skill-tag {
-  background: linear-gradient(135deg, #ede9fe, #fce7f3);
-  color: #7c3aed;
+  background: var(--accent-light);
+  color: var(--accent);
   padding: 0.25rem 0.75rem;
   border-radius: 9999px;
   font-size: 0.75rem;
   font-weight: 500;
-  border: 1px solid #e9d5ff;
+  border: 1px solid var(--accent-light);
 }
 
 /* Print Styles */

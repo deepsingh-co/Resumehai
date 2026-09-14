@@ -15,6 +15,15 @@ const resumeSchema = new mongoose.Schema({
     enum: ['modern', 'classic', 'minimal', 'creative'],
     default: 'modern'
   },
+  accentColor: {
+    type: String,
+    default: ''
+  },
+  fontStyle: {
+    type: String,
+    enum: ['default', 'serif', 'mono', 'handwriting'],
+    default: 'default'
+  },
   personalInfo: {
     fullName: String,
     email: String,
