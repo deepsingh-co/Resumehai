@@ -2,7 +2,7 @@ import { useImperativeHandle, forwardRef, useRef } from 'react';
 import {
   Mail, Phone, MapPin, Linkedin, Github, Globe, Briefcase,
   GraduationCap, Code, FolderKanban, Award, Languages,
-  ExternalLink
+  ExternalLink, File, Image
 } from 'lucide-react';
 import { html2pdf } from 'html2pdf.js';
 
@@ -38,16 +38,25 @@ const ResumePreview = forwardRef(({ resume }, ref) => {
       className={`resume-preview ${template}`}
       style={{ maxWidth: '800px', margin: '0 auto', boxShadow: 'var(--shadow-lg)' }}
     >
-      <header className="resume-header">
-        <h1 className="resume-name">{personalInfo.fullName || 'Your Name'}</h1>
-        {personalInfo.summary && <p className="resume-title">{personalInfo.summary}</p>}
-        <div className="resume-contact">
-          {personalInfo.email && <span><Mail size={14} style={{ marginRight: 4, verticalAlign: 'middle' }} /> {personalInfo.email}</span>}
-          {personalInfo.phone && <span><Phone size={14} style={{ marginRight: 4, verticalAlign: 'middle' }} /> {personalInfo.phone}</span>}
-          {personalInfo.location && <span><MapPin size={14} style={{ marginRight: 4, verticalAlign: 'middle' }} /> {personalInfo.location}</span>}
-          {personalInfo.linkedin && <span><Linkedin size={14} style={{ marginRight: 4, verticalAlign: 'middle' }} /> {personalInfo.linkedin}</span>}
-          {personalInfo.github && <span><Github size={14} style={{ marginRight: 4, verticalAlign: 'middle' }} /> {personalInfo.github}</span>}
-          {personalInfo.website && <span><Globe size={14} style={{ marginRight: 4, verticalAlign: 'middle' }} /> {personalInfo.website}</span>}
+      <header className="resume-header" style={{ display: 'flex', gap: '1.5rem', alignItems: personalInfo.profilePhoto ? 'center' : 'flex-start' }}>
+        {personalInfo.profilePhoto && (
+          <img
+            src={personalInfo.profilePhoto}
+            alt={personalInfo.fullName}
+            style={{ width: 100, height: 100, borderRadius: '50%', objectFit: 'cover', border: '3px solid rgba(255,255,255,0.3)', flexShrink: 0 }}
+          />
+        )}
+        <div style={{ flex: 1 }}>
+          <h1 className="resume-name">{personalInfo.fullName || 'Your Name'}</h1>
+          {personalInfo.summary && <p className="resume-title">{personalInfo.summary}</p>}
+          <div className="resume-contact">
+            {personalInfo.email && <span><Mail size={14} style={{ marginRight: 4, verticalAlign: 'middle' }} /> {personalInfo.email}</span>}
+            {personalInfo.phone && <span><Phone size={14} style={{ marginRight: 4, verticalAlign: 'middle' }} /> {personalInfo.phone}</span>}
+            {personalInfo.location && <span><MapPin size={14} style={{ marginRight: 4, verticalAlign: 'middle' }} /> {personalInfo.location}</span>}
+            {personalInfo.linkedin && <span><Linkedin size={14} style={{ marginRight: 4, verticalAlign: 'middle' }} /> {personalInfo.linkedin}</span>}
+            {personalInfo.github && <span><Github size={14} style={{ marginRight: 4, verticalAlign: 'middle' }} /> {personalInfo.github}</span>}
+            {personalInfo.website && <span><Globe size={14} style={{ marginRight: 4, verticalAlign: 'middle' }} /> {personalInfo.website}</span>}
+          </div>
         </div>
       </header>
 
@@ -157,11 +166,24 @@ const ResumePreview = forwardRef(({ resume }, ref) => {
               </div>
               <div className="item-company">{cert.issuer}</div>
               {cert.credentialId && <div className="item-description">Credential: {cert.credentialId}</div>}
-              {cert.url && (
-                <a href={cert.url} target="_blank" rel="noopener noreferrer" className="item-description" style={{ marginTop: '0.25rem', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-                  <ExternalLink size={14} />Verify
-                </a>
-              )}
+              <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem', flexWrap: 'wrap' }}>
+                {cert.url && (
+                  <a href={cert.url} target="_blank" rel="noopener noreferrer" className="item-description" style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                    <ExternalLink size={14} />Verify
+                  </a>
+                )}
+                {cert.file && cert.fileName && (
+                  cert.file.startsWith('data:image') ? (
+                    <a href={cert.file} download={cert.fileName} target="_blank" rel="noopener noreferrer" className="item-description" style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                      <Image size={14} />{cert.fileName}
+                    </a>
+                  ) : (
+                    <a href={cert.file} download={cert.fileName} target="_blank" rel="noopener noreferrer" className="item-description" style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                      <File size={14} />{cert.fileName}
+                    </a>
+                  )
+                )}
+              </div>
             </div>
           ))}
         </section>

@@ -23,7 +23,8 @@ const resumeSchema = new mongoose.Schema({
     linkedin: String,
     github: String,
     website: String,
-    summary: String
+    summary: String,
+    profilePhoto: String
   },
   experience: [{
     company: String,
@@ -62,7 +63,9 @@ const resumeSchema = new mongoose.Schema({
     issuer: String,
     date: String,
     credentialId: String,
-    url: String
+    url: String,
+    file: String,
+    fileName: String
   }],
   languages: [{
     language: String,

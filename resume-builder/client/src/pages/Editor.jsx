@@ -4,7 +4,7 @@ import api from '../services/api';
 import toast from 'react-hot-toast';
 import {
   Plus, Trash2, ChevronDown, ChevronUp,
-  Loader2, Download, FileText, X, Sparkles
+  Loader2, Download, FileText, X, Sparkles, Upload, Image, File
 } from 'lucide-react';
 import ResumePreview from '../components/ResumePreview';
 import AIAssistant from '../components/AIAssistant';
@@ -24,14 +24,21 @@ const emptyExp = { company: '', position: '', location: '', startDate: '', endDa
 const emptyEdu = { institution: '', degree: '', fieldOfStudy: '', location: '', startDate: '', endDate: '', gpa: '', achievements: [''] };
 const emptySkill = { category: '', items: [''] };
 const emptyProject = { name: '', description: '', technologies: [''], link: '', startDate: '', endDate: '' };
-const emptyCert = { name: '', issuer: '', date: '', credentialId: '', url: '' };
+const emptyCert = { name: '', issuer: '', date: '', credentialId: '', url: '', file: '', fileName: '' };
 const emptyLang = { language: '', proficiency: 'Intermediate' };
 const emptyCustom = { title: '', content: '' };
+
+const readFileAsBase64 = (file) => new Promise((resolve, reject) => {
+  const reader = new FileReader();
+  reader.onload = () => resolve(reader.result);
+  reader.onerror = reject;
+  reader.readAsDataURL(file);
+});
 
 const initialResume = {
   title: 'My Resume',
   template: 'modern',
-  personalInfo: { fullName: '', email: '', phone: '', location: '', linkedin: '', github: '', website: '', summary: '' },
+  personalInfo: { fullName: '', email: '', phone: '', location: '', linkedin: '', github: '', website: '', summary: '', profilePhoto: '' },
   experience: [],
   education: [],
   skills: [],
@@ -268,8 +275,60 @@ function renderPersonalInfo(info, update, handleAIRequest) {
   const u = (field) => (val) => update(`personalInfo.${field}`, val);
   const ai = (field) => (val) => handleAIRequest('personalInfo', field, val);
 
+  const handlePhotoUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error('Image must be under 2MB');
+      return;
+    }
+    const base64 = await readFileAsBase64(file);
+    u('profilePhoto')(base64);
+    toast.success('Photo added');
+  };
+
   return (
     <div>
+      <div className="editor-field">
+        <label className="label">Profile Photo</label>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          {info.profilePhoto ? (
+            <div style={{ position: 'relative' }}>
+              <img
+                src={info.profilePhoto}
+                alt="Profile"
+                style={{ width: 72, height: 72, borderRadius: '50%', objectFit: 'cover', border: '2px solid var(--color-border)' }}
+              />
+              <button
+                onClick={() => u('profilePhoto')('')}
+                style={{
+                  position: 'absolute', top: -4, right: -4,
+                  width: 20, height: 20, borderRadius: '50%',
+                  background: 'var(--color-error)', color: 'white',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  border: '2px solid var(--color-surface)', cursor: 'pointer'
+                }}
+              >
+                <X size={10} />
+              </button>
+            </div>
+          ) : (
+            <label className="btn btn-secondary btn-sm" style={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
+              <Upload size={14} />
+              Upload Photo
+              <input type="file" accept="image/*" onChange={handlePhotoUpload} style={{ display: 'none' }} />
+            </label>
+          )}
+          {info.profilePhoto && (
+            <label className="btn btn-ghost btn-sm" style={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
+              <Image size={14} />
+              Change
+              <input type="file" accept="image/*" onChange={handlePhotoUpload} style={{ display: 'none' }} />
+            </label>
+          )}
+        </div>
+        <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '0.375rem' }}>JPG or PNG, max 2MB</p>
+      </div>
       <Field label="Full Name" value={info.fullName} onChange={u('fullName')} placeholder="John Doe" />
       <Field label="Email" value={info.email} onChange={u('email')} type="email" placeholder="john@example.com" />
       <Field label="Phone" value={info.phone} onChange={u('phone')} placeholder="+1 234 567 890" />
@@ -405,6 +464,19 @@ function renderProjects(items, updateItem, addItem, removeItem, handleAIRequest)
 }
 
 function renderCertifications(items, updateItem, addItem, removeItem) {
+  const handleFileUpload = async (i, e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('File must be under 5MB');
+      return;
+    }
+    const base64 = await readFileAsBase64(file);
+    updateItem('certifications', i, 'file', base64);
+    updateItem('certifications', i, 'fileName', file.name);
+    toast.success('Certificate file attached');
+  };
+
   return (
     <div>
       {items.map((cert, i) => (
@@ -420,6 +492,33 @@ function renderCertifications(items, updateItem, addItem, removeItem) {
           <Field label="Date" value={cert.date} onChange={v => updateItem('certifications', i, 'date', v)} type="date" />
           <Field label="Credential ID" value={cert.credentialId} onChange={v => updateItem('certifications', i, 'credentialId', v)} placeholder="ABC123" />
           <Field label="URL" value={cert.url} onChange={v => updateItem('certifications', i, 'url', v)} placeholder="https://..." />
+          <div className="editor-field">
+            <label className="label">Certificate File</label>
+            {cert.file && cert.fileName ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)' }}>
+                {cert.file.startsWith('data:image') ? (
+                  <Image size={16} style={{ color: 'var(--color-primary)', flexShrink: 0 }} />
+                ) : (
+                  <File size={16} style={{ color: 'var(--color-error)', flexShrink: 0 }} />
+                )}
+                <span style={{ flex: 1, fontSize: '0.8125rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{cert.fileName}</span>
+                <button
+                  className="btn btn-ghost btn-sm"
+                  onClick={() => { updateItem('certifications', i, 'file', ''); updateItem('certifications', i, 'fileName', ''); }}
+                  style={{ color: 'var(--color-error)', padding: '0.25rem' }}
+                >
+                  <X size={14} />
+                </button>
+              </div>
+            ) : (
+              <label className="btn btn-secondary btn-sm" style={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.5rem', width: '100%', justifyContent: 'center' }}>
+                <Upload size={14} />
+                Attach Certificate (PDF/Image)
+                <input type="file" accept="image/*,.pdf" onChange={(e) => handleFileUpload(i, e)} style={{ display: 'none' }} />
+              </label>
+            )}
+            <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '0.375rem' }}>PDF or image, max 5MB</p>
+          </div>
         </div>
       ))}
       <button className="btn btn-ghost" style={{ width: '100%', justifyContent: 'center' }} onClick={() => addItem('certifications', { ...emptyCert })}>
