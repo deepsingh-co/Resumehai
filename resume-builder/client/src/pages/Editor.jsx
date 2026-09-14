@@ -1,23 +1,32 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import toast from 'react-hot-toast';
 import {
-  Plus, Trash2, GripVertical, ChevronDown, ChevronUp,
-  Sparkles, Loader2, Check, X, Download, FileText
+  Plus, Trash2, ChevronDown, ChevronUp,
+  Loader2, Download, FileText, X, Sparkles
 } from 'lucide-react';
 import ResumePreview from '../components/ResumePreview';
 import AIAssistant from '../components/AIAssistant';
 
 const SECTIONS = [
-  { key: 'personalInfo', label: 'Personal Info', icon: 'user' },
-  { key: 'experience', label: 'Experience', icon: 'briefcase' },
-  { key: 'education', label: 'Education', icon: 'graduation-cap' },
-  { key: 'skills', label: 'Skills', icon: 'code' },
-  { key: 'projects', label: 'Projects', icon: 'folder-kanban' },
-  { key: 'certifications', label: 'Certifications', icon: 'award' },
-  { key: 'languages', label: 'Languages', icon: 'languages' },
+  { key: 'personalInfo', label: 'Personal Info' },
+  { key: 'experience', label: 'Experience' },
+  { key: 'education', label: 'Education' },
+  { key: 'skills', label: 'Skills' },
+  { key: 'projects', label: 'Projects' },
+  { key: 'certifications', label: 'Certifications' },
+  { key: 'languages', label: 'Languages' },
+  { key: 'customSections', label: 'Custom Sections' },
 ];
+
+const emptyExp = { company: '', position: '', location: '', startDate: '', endDate: '', current: false, description: '', achievements: [''] };
+const emptyEdu = { institution: '', degree: '', fieldOfStudy: '', location: '', startDate: '', endDate: '', gpa: '', achievements: [''] };
+const emptySkill = { category: '', items: [''] };
+const emptyProject = { name: '', description: '', technologies: [''], link: '', startDate: '', endDate: '' };
+const emptyCert = { name: '', issuer: '', date: '', credentialId: '', url: '' };
+const emptyLang = { language: '', proficiency: 'Intermediate' };
+const emptyCustom = { title: '', content: '' };
 
 const initialResume = {
   title: 'My Resume',
@@ -39,24 +48,20 @@ export default function Editor() {
   const [resume, setResume] = useState(initialResume);
   const [loading, setLoading] = useState(isNew ? false : true);
   const [saving, setSaving] = useState(false);
-  const [activeSection, setActiveSection] = useState('personalInfo');
   const [expandedSections, setExpandedSections] = useState({ personalInfo: true });
   const [aiOpen, setAiOpen] = useState(false);
   const [aiContext, setAiContext] = useState({ section: '', field: '', value: '' });
   const previewRef = useRef(null);
 
   useEffect(() => {
-    if (!isNew) {
-      loadResume();
-    }
+    if (!isNew) loadResume();
   }, [id]);
 
   const loadResume = async () => {
     try {
       const res = await api.get(`/resumes/${id}`);
       setResume(res.data);
-      setExpandedSections({ personalInfo: true });
-    } catch (err) {
+    } catch {
       toast.error('Failed to load resume');
       navigate('/dashboard');
     } finally {
@@ -67,85 +72,75 @@ export default function Editor() {
   const saveResume = async (redirect = false) => {
     setSaving(true);
     try {
-      let res;
       if (isNew) {
-        res = await api.post('/resumes', resume);
+        const res = await api.post('/resumes', resume);
         toast.success('Resume created');
-        if (redirect) return navigate(`/resume/${res.data._id}/edit`);
+        if (redirect) { navigate('/dashboard'); return; }
+        navigate(`/resume/${res.data._id}/edit`, { replace: true });
       } else {
-        res = await api.put(`/resumes/${id}`, resume);
+        await api.put(`/resumes/${id}`, resume);
         toast.success('Resume saved');
+        if (redirect) navigate('/dashboard');
       }
-      if (redirect) navigate('/dashboard');
-    } catch (err) {
+    } catch {
       toast.error('Failed to save resume');
     } finally {
       setSaving(false);
     }
   };
 
-  const updateField = useCallback((section, field, value, index = null, subField = null) => {
+  const update = (path, value) => {
     setResume(prev => {
-      const next = { ...prev };
-      if (index !== null && Array.isArray(next[section])) {
-        next[section] = [...next[section]];
-        if (subField) {
-          next[section][index] = { ...next[section][index], [subField]: value };
-        } else {
-          next[section][index] = value;
-        }
-      } else if (typeof next[section] === 'object' && next[section] !== null) {
-        next[section] = { ...next[section], [field]: value };
+      const next = JSON.parse(JSON.stringify(prev));
+      const keys = path.split('.');
+      let obj = next;
+      for (let i = 0; i < keys.length - 1; i++) {
+        obj = obj[keys[i]];
       }
+      obj[keys[keys.length - 1]] = value;
       return next;
     });
-  }, []);
+  };
 
-  const addItem = (section, item) => {
-    setResume(prev => ({
-      ...prev,
-      [section]: [...(prev[section] || []), item]
-    }));
+  const updateArrayItem = (section, index, field, value) => {
+    setResume(prev => {
+      const next = { ...prev, [section]: [...prev[section]] };
+      next[section][index] = { ...next[section][index], [field]: value };
+      return next;
+    });
+  };
+
+  const addArrayItem = (section, item) => {
+    setResume(prev => ({ ...prev, [section]: [...prev[section], item] }));
     setExpandedSections(prev => ({ ...prev, [section]: true }));
   };
 
-  const removeItem = (section, index) => {
-    setResume(prev => {
-      const next = { ...prev };
-      next[section] = next[section].filter((_, i) => i !== index);
-      return next;
-    });
+  const removeArrayItem = (section, index) => {
+    setResume(prev => ({ ...prev, [section]: prev[section].filter((_, i) => i !== index) }));
   };
 
-  const moveItem = (section, fromIndex, toIndex) => {
-    setResume(prev => {
-      const next = { ...prev };
-      const items = [...next[section]];
-      const [removed] = items.splice(fromIndex, 1);
-      items.splice(toIndex, 0, removed);
-      next[section] = items;
-      return next;
-    });
-  };
+  const toggle = (key) => setExpandedSections(prev => ({ ...prev, [key]: !prev[key] }));
 
-  const handleAIRequest = async (section, field, currentValue, context = {}) => {
-    setAiContext({ section, field, value: currentValue, ...context });
+  const handleAIRequest = (section, field, value, ctx = {}) => {
+    setAiContext({ section, field, value, ...ctx });
     setAiOpen(true);
   };
 
   const handleAIAccept = (suggestion) => {
     const { section, field, index, subField } = aiContext;
     if (index !== undefined) {
-      updateField(section, field, suggestion, index, subField);
+      if (subField) {
+        const arr = [...resume[section]];
+        arr[index] = { ...arr[index], [subField]: suggestion };
+        setResume(prev => ({ ...prev, [section]: arr }));
+      } else {
+        updateArrayItem(section, index, field, suggestion);
+      }
     } else {
-      updateField(section, field, suggestion);
+      update(`personalInfo.${field}`, suggestion);
     }
     setAiOpen(false);
     toast.success('AI suggestion applied');
-  };
-
-  const toggleSection = (section) => {
-    setExpandedSections(prev => ({ ...prev, [section]: !prev[section] }));
   };
 
   if (loading) {
@@ -164,25 +159,20 @@ export default function Editor() {
   return (
     <div className="editor-layout">
       <aside className="editor-sidebar">
-        <div style={{ marginBottom: '1.5rem' }}>
+        <div style={{ marginBottom: '1rem' }}>
           <div className="editor-field">
             <label className="label">Resume Title</label>
             <input
               type="text"
               className="input"
               value={resume.title}
-              onChange={e => setResume(prev => ({ ...prev, title: e.target.value }))}
+              onChange={e => update('title', e.target.value)}
               placeholder="My Resume"
             />
           </div>
-
           <div className="editor-field">
             <label className="label">Template</label>
-            <select
-              className="input"
-              value={resume.template}
-              onChange={e => setResume(prev => ({ ...prev, template: e.target.value }))}
-            >
+            <select className="input" value={resume.template} onChange={e => update('template', e.target.value)}>
               <option value="modern">Modern</option>
               <option value="classic">Classic</option>
               <option value="minimal">Minimal</option>
@@ -191,79 +181,52 @@ export default function Editor() {
           </div>
         </div>
 
-        <nav style={{ marginBottom: '1.5rem' }} aria-label="Resume sections">
-          {SECTIONS.map(section => {
-            const isExpanded = expandedSections[section.key];
-            const count = Array.isArray(resume[section.key]) ? resume[section.key].length : 0;
-            return (
+        <div className="editor-sections">
+          {SECTIONS.map(sec => (
+            <div key={sec.key} className="editor-section">
               <button
-                key={section.key}
-                onClick={() => { setActiveSection(section.key); toggleSection(section.key); }}
-                className={`btn btn-ghost ${activeSection === section.key ? 'btn-primary' : ''}`}
-                style={{
-                  width: '100%',
-                  justifyContent: 'space-between',
-                  textAlign: 'left',
-                  marginBottom: '0.375rem',
-                  borderRadius: 'var(--radius-md)'
-                }}
-                aria-expanded={isExpanded}
+                onClick={() => toggle(sec.key)}
+                className="btn btn-ghost"
+                style={{ width: '100%', justifyContent: 'space-between', fontWeight: 600, marginBottom: expandedSections[sec.key] ? '0.75rem' : 0 }}
               >
+                <span>{sec.label}</span>
                 <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  {section.label}
-                </span>
-                <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  {count > 0 && <span className="badge badge-primary">{count}</span>}
-                  <span style={{ width: '20px', textAlign: 'right' }}>
-                    {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                  </span>
+                  {Array.isArray(resume[sec.key]) && resume[sec.key].length > 0 && (
+                    <span className="badge badge-primary">{resume[sec.key].length}</span>
+                  )}
+                  {expandedSections[sec.key] ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                 </span>
               </button>
-            );
-          })}
 
-          <button
-            onClick={() => {
-              const newSection = `custom_${Date.now()}`;
-              setResume(prev => ({
-                ...prev,
-                customSections: [...(prev.customSections || []), { title: 'New Section', content: '' }]
-              }));
-              setActiveSection('customSections');
-            }}
-            className="btn btn-ghost" style={{ width: '100%', justifyContent: 'center', marginTop: '0.5rem' }}
-          >
-            <Plus size={16} style={{ marginRight: '0.5rem' }} /> Add Custom Section
-          </button>
-        </nav>
+              {expandedSections[sec.key] && (
+                <div style={{ paddingLeft: '0.5rem' }}>
+                  {sec.key === 'personalInfo' && renderPersonalInfo(resume.personalInfo, update, handleAIRequest)}
+                  {sec.key === 'experience' && renderExperience(resume.experience, updateArrayItem, addArrayItem, removeArrayItem, handleAIRequest)}
+                  {sec.key === 'education' && renderEducation(resume.education, updateArrayItem, addArrayItem, removeArrayItem, handleAIRequest)}
+                  {sec.key === 'skills' && renderSkills(resume.skills, updateArrayItem, addArrayItem, removeArrayItem)}
+                  {sec.key === 'projects' && renderProjects(resume.projects, updateArrayItem, addArrayItem, removeArrayItem, handleAIRequest)}
+                  {sec.key === 'certifications' && renderCertifications(resume.certifications, updateArrayItem, addArrayItem, removeArrayItem)}
+                  {sec.key === 'languages' && renderLanguages(resume.languages, updateArrayItem, addArrayItem, removeArrayItem)}
+                  {sec.key === 'customSections' && renderCustomSections(resume.customSections, updateArrayItem, addArrayItem, removeArrayItem)}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
 
+        <div className="divider" />
         <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-          <button
-            onClick={() => saveResume(false)}
-            className="btn btn-primary"
-            disabled={saving}
-            style={{ flex: 1 }}
-          >
-            {saving ? <Loader2 size={16} /> : 'Save'}
+          <button onClick={() => saveResume(false)} className="btn btn-primary" disabled={saving} style={{ flex: 1 }}>
+            {saving ? <Loader2 size={16} className="loading" /> : 'Save'}
           </button>
-          <button
-            onClick={() => saveResume(true)}
-            className="btn btn-secondary"
-            disabled={saving}
-            style={{ flex: 1 }}
-          >
-            <Download size={16} style={{ marginRight: '0.25rem' }} /> Save & Exit
+          <button onClick={() => saveResume(true)} className="btn btn-secondary" disabled={saving} style={{ flex: 1 }}>
+            <Download size={16} /> Save & Exit
           </button>
         </div>
       </aside>
 
       <div className="editor-preview">
-        <ResumePreview
-          ref={previewRef}
-          resume={resume}
-          editMode
-          onAIRequest={handleAIRequest}
-        />
+        <ResumePreview ref={previewRef} resume={resume} />
 
         {aiOpen && (
           <AIAssistant
@@ -273,6 +236,248 @@ export default function Editor() {
           />
         )}
       </div>
+    </div>
+  );
+}
+
+function Field({ label, value, onChange, type = 'text', placeholder = '', rows, ai }) {
+  return (
+    <div className="editor-field">
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <label className="label">{label}</label>
+        {ai && (
+          <button
+            className="ai-suggest-btn"
+            onClick={() => ai(value)}
+            title="Get AI suggestion"
+          >
+            <Sparkles size={12} />
+          </button>
+        )}
+      </div>
+      {rows ? (
+        <textarea className="input" value={value || ''} onChange={e => onChange(e.target.value)} placeholder={placeholder} rows={rows} />
+      ) : (
+        <input type={type} className="input" value={value || ''} onChange={e => onChange(e.target.value)} placeholder={placeholder} />
+      )}
+    </div>
+  );
+}
+
+function renderPersonalInfo(info, update, handleAIRequest) {
+  const u = (field) => (val) => update(`personalInfo.${field}`, val);
+  const ai = (field) => (val) => handleAIRequest('personalInfo', field, val);
+
+  return (
+    <div>
+      <Field label="Full Name" value={info.fullName} onChange={u('fullName')} placeholder="John Doe" />
+      <Field label="Email" value={info.email} onChange={u('email')} type="email" placeholder="john@example.com" />
+      <Field label="Phone" value={info.phone} onChange={u('phone')} placeholder="+1 234 567 890" />
+      <Field label="Location" value={info.location} onChange={u('location')} placeholder="San Francisco, CA" />
+      <Field label="LinkedIn" value={info.linkedin} onChange={u('linkedin')} placeholder="linkedin.com/in/johndoe" />
+      <Field label="GitHub" value={info.github} onChange={u('github')} placeholder="github.com/johndoe" />
+      <Field label="Website" value={info.website} onChange={u('website')} placeholder="johndoe.com" />
+      <Field label="Summary" value={info.summary} onChange={u('summary')} rows={4} placeholder="Professional summary..." ai={ai('summary')} />
+    </div>
+  );
+}
+
+function renderExperience(items, updateItem, addItem, removeItem, handleAIRequest) {
+  return (
+    <div>
+      {items.map((exp, i) => (
+        <div key={i} className="item-editor">
+          <div className="item-editor-header">
+            <span className="item-editor-title">{exp.position || exp.company || `Experience ${i + 1}`}</span>
+            <button className="btn btn-ghost btn-sm" onClick={() => removeItem('experience', i)} style={{ color: 'var(--color-error)' }}>
+              <Trash2 size={14} />
+            </button>
+          </div>
+          <Field label="Position" value={exp.position} onChange={v => updateItem('experience', i, 'position', v)} placeholder="Software Engineer" />
+          <Field label="Company" value={exp.company} onChange={v => updateItem('experience', i, 'company', v)} placeholder="Google" />
+          <Field label="Location" value={exp.location} onChange={v => updateItem('experience', i, 'location', v)} placeholder="Mountain View, CA" />
+          <div className="editor-row">
+            <Field label="Start Date" value={exp.startDate} onChange={v => updateItem('experience', i, 'startDate', v)} type="date" />
+            <Field label="End Date" value={exp.endDate} onChange={v => updateItem('experience', i, 'endDate', v)} type="date" />
+          </div>
+          <div className="editor-field">
+            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.875rem' }}>
+              <input type="checkbox" checked={exp.current || false} onChange={e => updateItem('experience', i, 'current', e.target.checked)} />
+              Currently working here
+            </label>
+          </div>
+          <Field
+            label="Description"
+            value={exp.description}
+            onChange={v => updateItem('experience', i, 'description', v)}
+            rows={3}
+            placeholder="Describe your role..."
+            ai={(val) => handleAIRequest('experience', 'description', val, { index: i })}
+          />
+          <Field label="Achievements (one per line)" value={(exp.achievements || []).join('\n')} onChange={v => updateItem('experience', i, 'achievements', v.split('\n').filter(Boolean))} rows={3} placeholder="• Increased revenue by 20%" />
+        </div>
+      ))}
+      <button className="btn btn-ghost" style={{ width: '100%', justifyContent: 'center' }} onClick={() => addItem('experience', { ...emptyExp })}>
+        <Plus size={16} /> Add Experience
+      </button>
+    </div>
+  );
+}
+
+function renderEducation(items, updateItem, addItem, removeItem, handleAIRequest) {
+  return (
+    <div>
+      {items.map((edu, i) => (
+        <div key={i} className="item-editor">
+          <div className="item-editor-header">
+            <span className="item-editor-title">{edu.degree || edu.institution || `Education ${i + 1}`}</span>
+            <button className="btn btn-ghost btn-sm" onClick={() => removeItem('education', i)} style={{ color: 'var(--color-error)' }}>
+              <Trash2 size={14} />
+            </button>
+          </div>
+          <Field label="Institution" value={edu.institution} onChange={v => updateItem('education', i, 'institution', v)} placeholder="MIT" />
+          <Field label="Degree" value={edu.degree} onChange={v => updateItem('education', i, 'degree', v)} placeholder="Bachelor's" />
+          <Field label="Field of Study" value={edu.fieldOfStudy} onChange={v => updateItem('education', i, 'fieldOfStudy', v)} placeholder="Computer Science" />
+          <Field label="Location" value={edu.location} onChange={v => updateItem('education', i, 'location', v)} placeholder="Cambridge, MA" />
+          <div className="editor-row">
+            <Field label="Start Date" value={edu.startDate} onChange={v => updateItem('education', i, 'startDate', v)} type="date" />
+            <Field label="End Date" value={edu.endDate} onChange={v => updateItem('education', i, 'endDate', v)} type="date" />
+          </div>
+          <Field label="GPA" value={edu.gpa} onChange={v => updateItem('education', i, 'gpa', v)} placeholder="3.8/4.0" />
+          <Field label="Achievements (one per line)" value={(edu.achievements || []).join('\n')} onChange={v => updateItem('education', i, 'achievements', v.split('\n').filter(Boolean))} rows={3} placeholder="Dean's List" />
+        </div>
+      ))}
+      <button className="btn btn-ghost" style={{ width: '100%', justifyContent: 'center' }} onClick={() => addItem('education', { ...emptyEdu })}>
+        <Plus size={16} /> Add Education
+      </button>
+    </div>
+  );
+}
+
+function renderSkills(items, updateItem, addItem, removeItem) {
+  return (
+    <div>
+      {items.map((skill, i) => (
+        <div key={i} className="item-editor">
+          <div className="item-editor-header">
+            <span className="item-editor-title">{skill.category || `Skill Group ${i + 1}`}</span>
+            <button className="btn btn-ghost btn-sm" onClick={() => removeItem('skills', i)} style={{ color: 'var(--color-error)' }}>
+              <Trash2 size={14} />
+            </button>
+          </div>
+          <Field label="Category" value={skill.category} onChange={v => updateItem('skills', i, 'category', v)} placeholder="Frontend" />
+          <Field label="Skills (one per line)" value={(skill.items || []).join('\n')} onChange={v => updateItem('skills', i, 'items', v.split('\n').filter(Boolean))} rows={3} placeholder="React&#10;TypeScript&#10;CSS" />
+        </div>
+      ))}
+      <button className="btn btn-ghost" style={{ width: '100%', justifyContent: 'center' }} onClick={() => addItem('skills', { ...emptySkill })}>
+        <Plus size={16} /> Add Skill Group
+      </button>
+    </div>
+  );
+}
+
+function renderProjects(items, updateItem, addItem, removeItem, handleAIRequest) {
+  return (
+    <div>
+      {items.map((proj, i) => (
+        <div key={i} className="item-editor">
+          <div className="item-editor-header">
+            <span className="item-editor-title">{proj.name || `Project ${i + 1}`}</span>
+            <button className="btn btn-ghost btn-sm" onClick={() => removeItem('projects', i)} style={{ color: 'var(--color-error)' }}>
+              <Trash2 size={14} />
+            </button>
+          </div>
+          <Field label="Name" value={proj.name} onChange={v => updateItem('projects', i, 'name', v)} placeholder="E-commerce Platform" />
+          <Field label="Link" value={proj.link} onChange={v => updateItem('projects', i, 'link', v)} placeholder="https://..." />
+          <div className="editor-row">
+            <Field label="Start Date" value={proj.startDate} onChange={v => updateItem('projects', i, 'startDate', v)} type="date" />
+            <Field label="End Date" value={proj.endDate} onChange={v => updateItem('projects', i, 'endDate', v)} type="date" />
+          </div>
+          <Field label="Description" value={proj.description} onChange={v => updateItem('projects', i, 'description', v)} rows={3} placeholder="Describe the project..." ai={(val) => handleAIRequest('projects', 'description', val, { index: i })} />
+          <Field label="Technologies (one per line)" value={(proj.technologies || []).join('\n')} onChange={v => updateItem('projects', i, 'technologies', v.split('\n').filter(Boolean))} rows={3} placeholder="React&#10;Node.js&#10;MongoDB" />
+        </div>
+      ))}
+      <button className="btn btn-ghost" style={{ width: '100%', justifyContent: 'center' }} onClick={() => addItem('projects', { ...emptyProject })}>
+        <Plus size={16} /> Add Project
+      </button>
+    </div>
+  );
+}
+
+function renderCertifications(items, updateItem, addItem, removeItem) {
+  return (
+    <div>
+      {items.map((cert, i) => (
+        <div key={i} className="item-editor">
+          <div className="item-editor-header">
+            <span className="item-editor-title">{cert.name || `Certification ${i + 1}`}</span>
+            <button className="btn btn-ghost btn-sm" onClick={() => removeItem('certifications', i)} style={{ color: 'var(--color-error)' }}>
+              <Trash2 size={14} />
+            </button>
+          </div>
+          <Field label="Name" value={cert.name} onChange={v => updateItem('certifications', i, 'name', v)} placeholder="AWS Solutions Architect" />
+          <Field label="Issuer" value={cert.issuer} onChange={v => updateItem('certifications', i, 'issuer', v)} placeholder="Amazon" />
+          <Field label="Date" value={cert.date} onChange={v => updateItem('certifications', i, 'date', v)} type="date" />
+          <Field label="Credential ID" value={cert.credentialId} onChange={v => updateItem('certifications', i, 'credentialId', v)} placeholder="ABC123" />
+          <Field label="URL" value={cert.url} onChange={v => updateItem('certifications', i, 'url', v)} placeholder="https://..." />
+        </div>
+      ))}
+      <button className="btn btn-ghost" style={{ width: '100%', justifyContent: 'center' }} onClick={() => addItem('certifications', { ...emptyCert })}>
+        <Plus size={16} /> Add Certification
+      </button>
+    </div>
+  );
+}
+
+function renderLanguages(items, updateItem, addItem, removeItem) {
+  return (
+    <div>
+      {items.map((lang, i) => (
+        <div key={i} className="item-editor">
+          <div className="item-editor-header">
+            <span className="item-editor-title">{lang.language || `Language ${i + 1}`}</span>
+            <button className="btn btn-ghost btn-sm" onClick={() => removeItem('languages', i)} style={{ color: 'var(--color-error)' }}>
+              <Trash2 size={14} />
+            </button>
+          </div>
+          <Field label="Language" value={lang.language} onChange={v => updateItem('languages', i, 'language', v)} placeholder="English" />
+          <div className="editor-field">
+            <label className="label">Proficiency</label>
+            <select className="input" value={lang.proficiency || 'Intermediate'} onChange={e => updateItem('languages', i, 'proficiency', e.target.value)}>
+              <option value="Native">Native</option>
+              <option value="Fluent">Fluent</option>
+              <option value="Advanced">Advanced</option>
+              <option value="Intermediate">Intermediate</option>
+              <option value="Beginner">Beginner</option>
+            </select>
+          </div>
+        </div>
+      ))}
+      <button className="btn btn-ghost" style={{ width: '100%', justifyContent: 'center' }} onClick={() => addItem('languages', { ...emptyLang })}>
+        <Plus size={16} /> Add Language
+      </button>
+    </div>
+  );
+}
+
+function renderCustomSections(items, updateItem, addItem, removeItem) {
+  return (
+    <div>
+      {items.map((sec, i) => (
+        <div key={i} className="item-editor">
+          <div className="item-editor-header">
+            <span className="item-editor-title">{sec.title || `Section ${i + 1}`}</span>
+            <button className="btn btn-ghost btn-sm" onClick={() => removeItem('customSections', i)} style={{ color: 'var(--color-error)' }}>
+              <Trash2 size={14} />
+            </button>
+          </div>
+          <Field label="Title" value={sec.title} onChange={v => updateItem('customSections', i, 'title', v)} placeholder="Awards" />
+          <Field label="Content" value={sec.content} onChange={v => updateItem('customSections', i, 'content', v)} rows={4} placeholder="Section content..." />
+        </div>
+      ))}
+      <button className="btn btn-ghost" style={{ width: '100%', justifyContent: 'center' }} onClick={() => addItem('customSections', { ...emptyCustom })}>
+        <Plus size={16} /> Add Custom Section
+      </button>
     </div>
   );
 }
