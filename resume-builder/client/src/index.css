@@ -960,6 +960,108 @@ input, textarea, select {
   margin-bottom: 1.5rem;
 }
 
+/* Color Picker */
+.color-picker-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.color-swatch {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: var(--transition);
+  padding: 0;
+}
+
+.color-swatch:hover {
+  transform: scale(1.1);
+}
+
+.color-swatch.selected {
+  border-color: var(--color-text);
+  box-shadow: 0 0 0 2px var(--color-surface), 0 0 0 4px var(--color-text);
+}
+
+.color-swatch.custom-color {
+  background: var(--color-bg);
+  border: 2px dashed var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.color-swatch.custom-color:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+/* Font Selector */
+.font-selector {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+}
+
+.font-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.5rem;
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.font-btn:hover {
+  border-color: var(--color-primary);
+}
+
+.font-btn.selected {
+  border-color: var(--color-primary);
+  background: rgb(37 99 235 / 0.05);
+}
+
+.font-preview {
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.font-preview.font-default {
+  font-family: 'Inter', sans-serif;
+}
+
+.font-preview.font-serif {
+  font-family: 'Georgia', serif;
+}
+
+.font-preview.font-mono {
+  font-family: 'Fira Code', 'Courier New', monospace;
+}
+
+.font-preview.font-handwriting {
+  font-family: 'Caveat', cursive;
+  font-size: 1.5rem;
+}
+
+.font-label {
+  font-size: 0.625rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
 /* Auth Pages */
 .auth-page {
   min-height: 100vh;

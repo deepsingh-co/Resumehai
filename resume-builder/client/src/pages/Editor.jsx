@@ -36,9 +36,14 @@ const readFileAsBase64 = (file) => new Promise((resolve, reject) => {
   reader.readAsDataURL(file);
 });
 
+const defaultColors = { modern: '#2563eb', classic: '#1e293b', minimal: '#64748b', creative: '#7c3aed' };
+const getDefaultColor = (template) => defaultColors[template] || '#2563eb';
+
 const initialResume = {
   title: 'My Resume',
   template: 'modern',
+  accentColor: '',
+  fontStyle: 'default',
   personalInfo: { fullName: '', email: '', phone: '', location: '', linkedin: '', github: '', website: '', summary: '', profilePhoto: '' },
   experience: [],
   education: [],
@@ -194,6 +199,49 @@ export default function Editor() {
               <option value="minimal">Minimal</option>
               <option value="creative">Creative</option>
             </select>
+          </div>
+          <div className="editor-field">
+            <label className="label">Accent Color</label>
+            <div className="color-picker-row">
+              {['#2563eb', '#7c3aed', '#059669', '#dc2626', '#ea580c', '#0891b2', '#4f46e5', '#be185d', '#1e293b'].map(color => (
+                <button
+                  key={color}
+                  className={`color-swatch ${(resume.accentColor || getDefaultColor(resume.template)) === color ? 'selected' : ''}`}
+                  style={{ background: color }}
+                  onClick={() => update('accentColor', color)}
+                  title={color}
+                />
+              ))}
+              <label className="color-swatch custom-color" title="Custom color">
+                <input
+                  type="color"
+                  value={resume.accentColor || getDefaultColor(resume.template)}
+                  onChange={e => update('accentColor', e.target.value)}
+                  style={{ display: 'none' }}
+                />
+                <span>+</span>
+              </label>
+            </div>
+          </div>
+          <div className="editor-field">
+            <label className="label">Font Style</label>
+            <div className="font-selector">
+              {[
+                { value: 'default', label: 'Default', preview: 'Aa' },
+                { value: 'serif', label: 'Serif', preview: 'Aa' },
+                { value: 'mono', label: 'Mono', preview: 'Aa' },
+                { value: 'handwriting', label: 'Handwriting', preview: 'Aa' },
+              ].map(font => (
+                <button
+                  key={font.value}
+                  className={`font-btn ${(resume.fontStyle || 'default') === font.value ? 'selected' : ''}`}
+                  onClick={() => update('fontStyle', font.value)}
+                >
+                  <span className={`font-preview font-${font.value}`}>{font.preview}</span>
+                  <span className="font-label">{font.label}</span>
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 

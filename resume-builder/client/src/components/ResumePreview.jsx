@@ -6,6 +6,8 @@ import {
 } from 'lucide-react';
 import { html2pdf } from 'html2pdf.js';
 
+const defaultColors = { modern: '#2563eb', classic: '#1e293b', minimal: '#64748b', creative: '#7c3aed' };
+
 const ResumePreview = forwardRef(({ resume }, ref) => {
   const previewRef = useRef(null);
 
@@ -30,13 +32,42 @@ const ResumePreview = forwardRef(({ resume }, ref) => {
     }
   };
 
-  const { personalInfo = {}, experience = [], education = [], skills = [], projects = [], certifications = [], languages = [], customSections = [], template = 'modern' } = resume || {};
+  const { personalInfo = {}, experience = [], education = [], skills = [], projects = [], certifications = [], languages = [], customSections = [], template = 'modern', accentColor = '', fontStyle = 'default' } = resume || {};
+  const resolvedColor = accentColor || defaultColors[template] || '#2563eb';
+  const fontClass = fontStyle && fontStyle !== 'default' ? `font-${fontStyle}` : '';
+
+  const hexToRgb = (hex) => {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return `${r} ${g} ${b}`;
+  };
+
+  const darken = (hex, amount = 30) => {
+    let r = parseInt(hex.slice(1, 3), 16);
+    let g = parseInt(hex.slice(3, 5), 16);
+    let b = parseInt(hex.slice(5, 7), 16);
+    r = Math.max(0, r - amount);
+    g = Math.max(0, g - amount);
+    b = Math.max(0, b - amount);
+    return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+  };
+
+  const lighten = (hex, amount = 180) => {
+    let r = parseInt(hex.slice(1, 3), 16);
+    let g = parseInt(hex.slice(3, 5), 16);
+    let b = parseInt(hex.slice(5, 7), 16);
+    r = Math.min(255, r + amount);
+    g = Math.min(255, g + amount);
+    b = Math.min(255, b + amount);
+    return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+  };
 
   return (
     <div
       ref={previewRef}
-      className={`resume-preview ${template}`}
-      style={{ maxWidth: '800px', margin: '0 auto', boxShadow: 'var(--shadow-lg)' }}
+      className={`resume-preview ${template} ${fontClass}`}
+      style={{ maxWidth: '800px', margin: '0 auto', boxShadow: 'var(--shadow-lg)', '--accent': resolvedColor, '--accent-dark': darken(resolvedColor), '--accent-light': lighten(resolvedColor) }}
     >
       <header className="resume-header" style={{ display: 'flex', gap: '1.5rem', alignItems: personalInfo.profilePhoto ? 'center' : 'flex-start' }}>
         {personalInfo.profilePhoto && (
