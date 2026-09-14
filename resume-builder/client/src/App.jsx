@@ -40,6 +40,8 @@ function PublicRoute({ children }) {
 
 function App() {
   const { isAuthenticated, loading } = useAuth();
+  const location = window.location.pathname;
+  const isLanding = location === '/';
 
   if (loading) {
     return (
@@ -52,7 +54,7 @@ function App() {
   return (
     <div className="app">
       {isAuthenticated && <Navbar />}
-      <main style={{ padding: '1.5rem', maxWidth: '1400px', margin: '0 auto' }}>
+      <main style={isLanding ? {} : { padding: '1.5rem', maxWidth: '1400px', margin: '0 auto' }}>
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
