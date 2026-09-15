@@ -34,7 +34,7 @@ export default function Dashboard() {
   };
 
   const handleDelete = async (id) => {
-    if (!confirm('Are you sure you want to delete this resume?')) return;
+    if (!confirm('Are you  really sure you want to delete this resume?')) return;
     setDeletingId(id);
     try {
       await api.delete(`/resumes/${id}`);
