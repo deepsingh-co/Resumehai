@@ -1,10 +1,9 @@
-import { useImperativeHandle, forwardRef, useRef } from 'react';
+import { useImperativeHandle, forwardRef, useRef, useCallback } from 'react';
 import {
   Mail, Phone, MapPin, Linkedin, Github, Globe, Briefcase,
   GraduationCap, Code, FolderKanban, Award, Languages,
   ExternalLink, File, Image
 } from 'lucide-react';
-import { html2pdf } from 'html2pdf.js';
 
 const defaultColors = { modern: '#2563eb', classic: '#1e293b', minimal: '#64748b', creative: '#7c3aed' };
 
@@ -17,18 +16,39 @@ const ResumePreview = forwardRef(({ resume }, ref) => {
 
   const exportPDF = async () => {
     const element = previewRef.current;
-    if (!element) return;
-    const opt = {
-      margin: 0,
-      filename: `${resume.title || 'resume'}.pdf`,
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true, logging: false },
-      jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-    };
+    if (!element) {
+      console.error('No element found for PDF export');
+      return;
+    }
+
+    const filename = `${(resume.title || 'resume').replace(/[^a-zA-Z0-9]/g, '_')}.pdf`;
+
     try {
-      await html2pdf().set(opt).from(element).save();
+      const html2pdf = (await import('html2pdf.js')).default;
+      const opt = {
+        margin: [0.3, 0.3, 0.3, 0.3],
+        filename: filename,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: {
+          scale: 2,
+          useCORS: true,
+          logging: false,
+          letterRendering: true,
+          allowTaint: false
+        },
+        jsPDF: {
+          unit: 'in',
+          format: 'letter',
+          orientation: 'portrait'
+        },
+        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+      };
+
+      const worker = html2pdf().set(opt).from(element);
+      await worker.save();
     } catch (err) {
-      console.error('PDF export failed:', err);
+      console.error('PDF export error:', err);
+      throw err;
     }
   };
 

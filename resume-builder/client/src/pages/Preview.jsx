@@ -30,13 +30,17 @@ export default function Preview() {
   };
 
   const exportPDF = async () => {
-    if (!previewRef.current) return;
+    if (!previewRef.current) {
+      toast.error('Preview not ready');
+      return;
+    }
     setExporting(true);
     try {
       await previewRef.current.exportPDF();
-      toast.success('PDF downloaded');
+      toast.success('PDF downloaded to your device');
     } catch (err) {
-      toast.error('Failed to export PDF');
+      console.error('Export error:', err);
+      toast.error('Failed to export PDF. Please try again.');
     } finally {
       setExporting(false);
     }

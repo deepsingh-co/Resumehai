@@ -164,6 +164,20 @@ export default function Editor() {
     toast.success('AI suggestion applied');
   };
 
+  const handleExportPDF = async () => {
+    if (!previewRef.current) {
+      toast.error('Preview not ready');
+      return;
+    }
+    try {
+      await previewRef.current.exportPDF();
+      toast.success('PDF downloaded to your device');
+    } catch (err) {
+      console.error('Export error:', err);
+      toast.error('Failed to export PDF');
+    }
+  };
+
   if (loading) {
     return (
       <div className="editor-layout">
@@ -283,8 +297,13 @@ export default function Editor() {
           <button onClick={() => saveResume(false)} className="btn btn-primary" disabled={saving} style={{ flex: 1 }}>
             {saving ? <Loader2 size={16} className="loading" /> : 'Save'}
           </button>
-          <button onClick={() => saveResume(true)} className="btn btn-secondary" disabled={saving} style={{ flex: 1 }}>
-            <Download size={16} /> Save & Exit
+          <button onClick={handleExportPDF} className="btn btn-secondary" disabled={saving} style={{ flex: 1 }}>
+            <Download size={16} /> Export PDF
+          </button>
+        </div>
+        <div style={{ marginTop: '0.5rem' }}>
+          <button onClick={() => saveResume(true)} className="btn btn-ghost" style={{ width: '100%', justifyContent: 'center' }}>
+            Save & Exit to Dashboard
           </button>
         </div>
       </aside>
