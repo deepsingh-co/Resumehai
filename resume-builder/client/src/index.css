@@ -821,17 +821,22 @@ input, textarea, select {
 }
 
 .editor-sidebar {
-  overflow-y: auto;
   padding: 1.25rem;
   background: var(--color-surface);
   border-right: 1px solid var(--color-border);
   display: flex;
   flex-direction: column;
   min-width: 0;
+  overflow: hidden;
+}
+
+.editor-sidebar-top {
+  flex-shrink: 0;
 }
 
 .editor-sections {
   flex: 1;
+  overflow-y: auto;
   min-height: 0;
 }
 
@@ -866,7 +871,7 @@ input, textarea, select {
 
 /* Editor Bottom Actions */
 .editor-bottom-actions {
-  margin-top: auto;
+  flex-shrink: 0;
   padding-top: 0.75rem;
 }
 
@@ -2277,7 +2282,7 @@ input, textarea, select {
     border-bottom: 1px solid var(--color-border);
     position: relative;
     max-height: none;
-    overflow-y: visible;
+    overflow: visible;
   }
 
   .editor-sections {
@@ -2322,12 +2327,13 @@ input, textarea, select {
     font-size: 0.6875rem;
   }
 
-  .editor-sidebar > div:last-child {
-    flex-direction: column;
+  .editor-save-row {
+    grid-template-columns: 1fr;
   }
 
-  .editor-sidebar > div:last-child .btn {
+  .btn-block {
     width: 100%;
+    justify-content: center;
   }
 
   .resume-preview {

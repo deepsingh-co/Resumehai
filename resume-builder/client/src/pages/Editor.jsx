@@ -196,7 +196,7 @@ export default function Editor() {
   return (
     <div className="editor-layout">
       <aside className="editor-sidebar">
-        <div style={{ marginBottom: '1rem' }}>
+        <div className="editor-sidebar-top">
           <div className="editor-field">
             <label className="label">Resume Title</label>
             <input
