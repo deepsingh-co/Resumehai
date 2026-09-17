@@ -1697,6 +1697,7 @@ input, textarea, select {
     position: sticky;
     top: 70px;
     max-height: calc(100vh - 70px);
+    overflow-y: auto;
   }
   
   .editor-row {
