@@ -4,10 +4,11 @@ import api from '../services/api';
 import toast from 'react-hot-toast';
 import {
   Plus, Trash2, ChevronDown, ChevronUp,
-  Loader2, Download, FileText, X, Sparkles, Upload, Image, File
+  Loader2, Download, FileText, X, Sparkles, Upload, Image, File, Target
 } from 'lucide-react';
 import ResumePreview from '../components/ResumePreview';
 import AIAssistant from '../components/AIAssistant';
+import ATSScore from '../components/ATSScore';
 import { demoResumes } from '../data/demoResumes';
 
 const SECTIONS = [
@@ -71,6 +72,7 @@ export default function Editor() {
   const [saving, setSaving] = useState(false);
   const [expandedSections, setExpandedSections] = useState({ personalInfo: true });
   const [aiOpen, setAiOpen] = useState(false);
+  const [atsOpen, setAtsOpen] = useState(false);
   const [aiContext, setAiContext] = useState({ section: '', field: '', value: '' });
   const previewRef = useRef(null);
 
@@ -309,6 +311,15 @@ export default function Editor() {
       </aside>
 
       <div className="editor-preview">
+        <div className="editor-preview-toolbar">
+          <button
+            onClick={() => { setAtsOpen(!atsOpen); setAiOpen(false); }}
+            className={`btn btn-sm ${atsOpen ? 'btn-primary' : 'btn-secondary'}`}
+          >
+            <Target size={14} /> ATS Score
+          </button>
+        </div>
+
         <ResumePreview ref={previewRef} resume={resume} />
 
         {aiOpen && (
@@ -316,6 +327,13 @@ export default function Editor() {
             context={aiContext}
             onAccept={handleAIAccept}
             onClose={() => setAiOpen(false)}
+          />
+        )}
+
+        {atsOpen && (
+          <ATSScore
+            resume={resume}
+            onClose={() => setAtsOpen(false)}
           />
         )}
       </div>
