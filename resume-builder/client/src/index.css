@@ -864,6 +864,30 @@ input, textarea, select {
   box-sizing: border-box;
 }
 
+/* Editor Bottom Actions */
+.editor-bottom-actions {
+  margin-top: auto;
+  padding-top: 0.75rem;
+}
+
+.editor-divider {
+  height: 1px;
+  background: var(--color-border);
+  margin: 0.75rem 0;
+}
+
+.editor-save-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.btn-block {
+  width: 100%;
+  justify-content: center;
+}
+
 /* Profile Photo Upload */
 .profile-photo-upload {
   display: flex;

@@ -294,17 +294,17 @@ export default function Editor() {
           ))}
         </div>
 
-        <div className="divider" />
-        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-          <button onClick={() => saveResume(false)} className="btn btn-primary" disabled={saving} style={{ flex: 1 }}>
-            {saving ? <Loader2 size={16} className="loading" /> : 'Save'}
-          </button>
-          <button onClick={handleExportPDF} className="btn btn-secondary" disabled={saving} style={{ flex: 1 }}>
-            <Download size={16} /> Export PDF
-          </button>
-        </div>
-        <div style={{ marginTop: '0.5rem' }}>
-          <button onClick={() => saveResume(true)} className="btn btn-ghost" style={{ width: '100%', justifyContent: 'center' }}>
+        <div className="editor-divider" />
+        <div className="editor-bottom-actions">
+          <div className="editor-save-row">
+            <button onClick={() => saveResume(false)} className="btn btn-primary" disabled={saving}>
+              {saving ? <Loader2 size={16} className="loading" /> : 'Save'}
+            </button>
+            <button onClick={handleExportPDF} className="btn btn-secondary" disabled={saving}>
+              <Download size={16} /> Export PDF
+            </button>
+          </div>
+          <button onClick={() => saveResume(true)} className="btn btn-ghost btn-block">
             Save & Exit to Dashboard
           </button>
         </div>
