@@ -279,7 +279,7 @@ export default function Editor() {
               </button>
 
               {expandedSections[sec.key] && (
-                <div style={{ paddingLeft: '0.5rem' }}>
+                <div className="editor-section-content">
                   {sec.key === 'personalInfo' && renderPersonalInfo(resume.personalInfo, update, handleAIRequest)}
                   {sec.key === 'experience' && renderExperience(resume.experience, updateArrayItem, addArrayItem, removeArrayItem, handleAIRequest)}
                   {sec.key === 'education' && renderEducation(resume.education, updateArrayItem, addArrayItem, removeArrayItem, handleAIRequest)}
@@ -386,45 +386,37 @@ function renderPersonalInfo(info, update, handleAIRequest) {
     <div>
       <div className="editor-field">
         <label className="label">Profile Photo</label>
-        <div className="profile-photo-row" style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+        <div className="profile-photo-upload">
           {info.profilePhoto ? (
-            <div style={{ position: 'relative', flexShrink: 0 }}>
+            <div className="profile-photo-preview">
               <img
                 src={info.profilePhoto}
                 alt="Profile"
-                style={{ width: 72, height: 72, borderRadius: '50%', objectFit: 'cover', border: '2px solid var(--color-border)' }}
+                className="profile-photo-img"
               />
               <button
                 onClick={() => u('profilePhoto')('')}
-                style={{
-                  position: 'absolute', top: -4, right: -4,
-                  width: 20, height: 20, borderRadius: '50%',
-                  background: 'var(--color-error)', color: 'white',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  border: '2px solid var(--color-surface)', cursor: 'pointer'
-                }}
+                className="profile-photo-remove"
               >
                 <X size={10} />
               </button>
             </div>
           ) : (
-            <label className="btn btn-secondary btn-sm" style={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
+            <label className="btn btn-secondary btn-sm profile-photo-btn">
               <Upload size={14} />
               Upload Photo
               <input type="file" accept="image/*" onChange={handlePhotoUpload} style={{ display: 'none' }} />
             </label>
           )}
           {info.profilePhoto && (
-            <div className="profile-photo-actions" style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-              <label className="btn btn-ghost btn-sm" style={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
-                <Image size={14} />
-                Change
-                <input type="file" accept="image/*" onChange={handlePhotoUpload} style={{ display: 'none' }} />
-              </label>
-            </div>
+            <label className="btn btn-ghost btn-sm profile-photo-change">
+              <Image size={14} />
+              Change Photo
+              <input type="file" accept="image/*" onChange={handlePhotoUpload} style={{ display: 'none' }} />
+            </label>
           )}
         </div>
-        <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '0.375rem' }}>JPG or PNG, max 2MB</p>
+        <p className="editor-field-hint">JPG or PNG, max 2MB</p>
       </div>
       <Field label="Full Name" value={info.fullName} onChange={u('fullName')} placeholder="John Doe" />
       <Field label="Email" value={info.email} onChange={u('email')} type="email" placeholder="john@example.com" />
