@@ -218,7 +218,7 @@ export default function Editor() {
           </div>
           <div className="editor-field">
             <label className="label">Accent Color</label>
-            <div className="color-picker-row">
+            <div className="color-picker-row" style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', alignItems: 'center' }}>
               {['#2563eb', '#7c3aed', '#059669', '#dc2626', '#ea580c', '#0891b2', '#4f46e5', '#be185d', '#1e293b'].map(color => (
                 <button
                   key={color}
@@ -344,20 +344,21 @@ export default function Editor() {
 function Field({ label, value, onChange, type = 'text', placeholder = '', rows, ai }) {
   return (
     <div className="editor-field">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <label className="label">{label}</label>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem', marginBottom: '0.375rem' }}>
+        <label className="label" style={{ margin: 0, flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{label}</label>
         {ai && (
           <button
             className="ai-suggest-btn"
             onClick={() => ai(value)}
             title="Get AI suggestion"
+            style={{ flexShrink: 0 }}
           >
             <Sparkles size={12} />
           </button>
         )}
       </div>
       {rows ? (
-        <textarea className="input" value={value || ''} onChange={e => onChange(e.target.value)} placeholder={placeholder} rows={rows} />
+        <textarea className="input" value={value || ''} onChange={e => onChange(e.target.value)} placeholder={placeholder} rows={rows} style={{ resize: 'vertical', minHeight: '80px' }} />
       ) : (
         <input type={type} className="input" value={value || ''} onChange={e => onChange(e.target.value)} placeholder={placeholder} />
       )}
@@ -385,9 +386,9 @@ function renderPersonalInfo(info, update, handleAIRequest) {
     <div>
       <div className="editor-field">
         <label className="label">Profile Photo</label>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+        <div className="profile-photo-row" style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
           {info.profilePhoto ? (
-            <div style={{ position: 'relative' }}>
+            <div style={{ position: 'relative', flexShrink: 0 }}>
               <img
                 src={info.profilePhoto}
                 alt="Profile"
@@ -414,11 +415,13 @@ function renderPersonalInfo(info, update, handleAIRequest) {
             </label>
           )}
           {info.profilePhoto && (
-            <label className="btn btn-ghost btn-sm" style={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
-              <Image size={14} />
-              Change
-              <input type="file" accept="image/*" onChange={handlePhotoUpload} style={{ display: 'none' }} />
-            </label>
+            <div className="profile-photo-actions" style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+              <label className="btn btn-ghost btn-sm" style={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Image size={14} />
+                Change
+                <input type="file" accept="image/*" onChange={handlePhotoUpload} style={{ display: 'none' }} />
+              </label>
+            </div>
           )}
         </div>
         <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '0.375rem' }}>JPG or PNG, max 2MB</p>
