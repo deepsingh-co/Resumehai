@@ -3,7 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import toast from 'react-hot-toast';
 import ResumePreview from '../components/ResumePreview';
-import { ArrowLeft, Download, Edit, FileText, Share2, Loader2 } from 'lucide-react';
+import ATSScore from '../components/ATSScore';
+import { ArrowLeft, Download, Edit, FileText, Share2, Loader2, Target } from 'lucide-react';
 
 export default function Preview() {
   const { id } = useParams();
@@ -11,6 +12,7 @@ export default function Preview() {
   const [resume, setResume] = useState(null);
   const [loading, setLoading] = useState(true);
   const [exporting, setExporting] = useState(false);
+  const [atsOpen, setAtsOpen] = useState(false);
   const previewRef = useRef(null);
 
   useEffect(() => {
@@ -82,8 +84,8 @@ export default function Preview() {
         </div>
 
         <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-          <button onClick={handleAnalyze} className="btn btn-secondary btn-sm">
-            <FileText size={16} style={{ marginRight: '0.25rem' }} /> AI Analysis
+          <button onClick={() => setAtsOpen(!atsOpen)} className={`btn btn-sm ${atsOpen ? 'btn-primary' : 'btn-secondary'}`}>
+            <Target size={16} style={{ marginRight: '0.25rem' }} /> ATS Score
           </button>
           <button onClick={() => navigate(`/resume/${id}/edit`)} className="btn btn-secondary btn-sm">
             <Edit size={16} style={{ marginRight: '0.25rem' }} /> Edit
@@ -94,11 +96,19 @@ export default function Preview() {
         </div>
       </div>
 
-      <div style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-lg)', overflow: 'hidden' }}>
-        <ResumePreview
-          ref={previewRef}
-          resume={resume}
-        />
+      <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'flex-start' }}>
+        <div style={{ flex: 1, background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-lg)', overflow: 'hidden' }}>
+          <ResumePreview
+            ref={previewRef}
+            resume={resume}
+          />
+        </div>
+
+        {atsOpen && (
+          <div style={{ width: '380px', flexShrink: 0 }}>
+            <ATSScore resume={resume} onClose={() => setAtsOpen(false)} />
+          </div>
+        )}
       </div>
 
       <div style={{ marginTop: '1.5rem', padding: '1.5rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)' }}>
