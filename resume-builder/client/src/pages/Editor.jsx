@@ -4,7 +4,7 @@ import api from '../services/api';
 import toast from 'react-hot-toast';
 import {
   Plus, Trash2, ChevronDown, ChevronUp,
-  Loader2, Download, FileText, X, Sparkles, Upload, Image, File, Target
+  Loader2, Download, FileText, X, Sparkles, Upload, Image, File, Target, Camera, RotateCcw
 } from 'lucide-react';
 import ResumePreview from '../components/ResumePreview';
 import AIAssistant from '../components/AIAssistant';
@@ -370,8 +370,7 @@ function renderPersonalInfo(info, update, handleAIRequest) {
   const u = (field) => (val) => update(`personalInfo.${field}`, val);
   const ai = (field) => (val) => handleAIRequest('personalInfo', field, val);
 
-  const handlePhotoUpload = async (e) => {
-    const file = e.target.files?.[0];
+  const handlePhotoUpload = async (file) => {
     if (!file) return;
     if (file.size > 2 * 1024 * 1024) {
       toast.error('Image must be under 2MB');
@@ -402,18 +401,24 @@ function renderPersonalInfo(info, update, handleAIRequest) {
               </button>
             </div>
           ) : (
-            <label className="btn btn-secondary btn-sm profile-photo-btn">
-              <Upload size={14} />
-              Upload Photo
-              <input type="file" accept="image/*" onChange={handlePhotoUpload} style={{ display: 'none' }} />
-            </label>
+            <>
+              <label className="btn btn-secondary btn-sm profile-photo-btn">
+                <Upload size={14} />
+                Upload Photo
+                <input type="file" accept="image/*" onChange={e => handlePhotoUpload(e.target.files?.[0])} style={{ display: 'none' }} />
+              </label>
+              <PhotoCamera onCapture={handlePhotoUpload} />
+            </>
           )}
           {info.profilePhoto && (
-            <label className="btn btn-ghost btn-sm profile-photo-change">
-              <Image size={14} />
-              Change Photo
-              <input type="file" accept="image/*" onChange={handlePhotoUpload} style={{ display: 'none' }} />
-            </label>
+            <>
+              <label className="btn btn-ghost btn-sm profile-photo-change">
+                <Image size={14} />
+                Change Photo
+                <input type="file" accept="image/*" onChange={e => handlePhotoUpload(e.target.files?.[0])} style={{ display: 'none' }} />
+              </label>
+              <PhotoCamera onCapture={handlePhotoUpload} />
+            </>
           )}
         </div>
         <p className="editor-field-hint">JPG or PNG, max 2MB</p>
@@ -427,6 +432,85 @@ function renderPersonalInfo(info, update, handleAIRequest) {
       <Field label="Website" value={info.website} onChange={u('website')} placeholder="johndoe.com" />
       <Field label="Summary" value={info.summary} onChange={u('summary')} rows={4} placeholder="Professional summary..." ai={ai('summary')} />
     </div>
+  );
+}
+
+function PhotoCamera({ onCapture }) {
+  const [open, setOpen] = useState(false);
+  const [error, setError] = useState('');
+  const videoRef = useRef(null);
+  const streamRef = useRef(null);
+
+  const stopCamera = () => {
+    streamRef.current?.getTracks().forEach(track => track.stop());
+    streamRef.current = null;
+    if (videoRef.current) videoRef.current.srcObject = null;
+  };
+
+  useEffect(() => () => stopCamera(), []);
+
+  const openCamera = async () => {
+    setError('');
+    if (!navigator.mediaDevices?.getUserMedia) {
+      setError('Camera access is not available in this browser.');
+      setOpen(true);
+      return;
+    }
+    setOpen(true);
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
+      streamRef.current = stream;
+      if (videoRef.current) videoRef.current.srcObject = stream;
+    } catch {
+      setError('Camera permission was denied or the camera is unavailable.');
+    }
+  };
+
+  const closeCamera = () => {
+    stopCamera();
+    setOpen(false);
+  };
+
+  const capturePhoto = () => {
+    const video = videoRef.current;
+    if (!video || !video.videoWidth) return;
+    const canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    canvas.getContext('2d').drawImage(video, 0, 0);
+    canvas.toBlob(blob => {
+      if (blob) onCapture(new File([blob], 'camera-photo.jpg', { type: 'image/jpeg' }));
+      closeCamera();
+    }, 'image/jpeg', 0.9);
+  };
+
+  return (
+    <>
+      <button type="button" className="btn btn-secondary btn-sm" onClick={openCamera}>
+        <Camera size={14} />
+        Use Camera
+      </button>
+      {open && (
+        <div className="modal-overlay" onClick={closeCamera}>
+          <div className="modal-content camera-modal" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Take a profile photo</h2>
+              <button type="button" className="btn btn-ghost btn-sm" onClick={closeCamera} aria-label="Close camera">
+                <X size={18} />
+              </button>
+            </div>
+            <div className="modal-body">
+              {error ? <p className="camera-error">{error}</p> : <video ref={videoRef} autoPlay playsInline muted className="camera-video" />}
+            </div>
+            <div className="modal-actions">
+              <button type="button" className="btn btn-secondary" onClick={closeCamera}>Cancel</button>
+              {!error && <button type="button" className="btn btn-primary" onClick={capturePhoto}><Camera size={16} /> Capture Photo</button>}
+              {error && <button type="button" className="btn btn-secondary" onClick={openCamera}><RotateCcw size={16} /> Try Again</button>}
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 
