@@ -1,233 +1,230 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FileText, Sparkles, Target, Download, Mail, Phone, MapPin, ArrowRight, CheckCircle } from 'lucide-react';
+import {
+  ArrowRight,
+  CheckCircle2,
+  ClipboardCheck,
+  Download,
+  FileText,
+  Gauge,
+  LayoutTemplate,
+  Mail,
+  MapPin,
+  Menu,
+  PenLine,
+  ShieldCheck,
+  Sparkles,
+  Star,
+  Target,
+  X,
+} from 'lucide-react';
+import '../styles/landing.css';
+
+const stats = [
+  { value: '10K+', label: 'Resumes created' },
+  { value: '85%', label: 'Interview rate' },
+  { value: '50+', label: 'ATS-ready templates' },
+  { value: '4.9/5', label: 'Average rating' },
+];
 
 function Landing() {
-  const [formData, setFormData] = useState({ name: '', email: '', message: '' });
-  const [submitted, setSubmitted] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setSubmitted(true);
-    setTimeout(() => setSubmitted(false), 3000);
-    setFormData({ name: '', email: '', message: '' });
-  };
-
-  const features = [
-    { icon: <Sparkles size={28} />, title: 'AI-Powered Content', desc: 'Generate compelling resume content tailored to your industry and experience level.' },
-    { icon: <FileText size={28} />, title: 'Professional Templates', desc: 'Choose from multiple ATS-friendly templates designed by hiring experts.' },
-    { icon: <Target size={28} />, title: 'Job Matching', desc: 'Optimize your resume for specific job descriptions to maximize interview chances.' },
-    { icon: <Download size={28} />, title: 'PDF Export', desc: 'Download your polished resume as a professional PDF ready to send.' },
-  ];
+  const closeMenu = () => setMenuOpen(false);
 
   return (
     <div className="landing">
-      <nav className="landing-nav">
-        <div className="landing-nav-content">
-          <Link to="/" className="landing-logo">
-            <FileText size={28} />
+      <header className="landing-nav-wrap">
+        <nav className="landing-nav" aria-label="Landing page navigation">
+          <Link to="/" className="landing-logo" onClick={closeMenu}>
+            <span className="landing-logo-mark">
+              <FileText size={20} strokeWidth={2.2} aria-hidden="true" />
+            </span>
             <span>Resumehai</span>
           </Link>
+
           <div className="landing-nav-links">
             <a href="#features">Features</a>
-            <a href="#about">About</a>
+            <a href="#how-it-works">How it works</a>
+            <a href="#testimonials">Stories</a>
             <a href="#contact">Contact</a>
-            <Link to="/login" className="btn btn-ghost">Log In</Link>
-            <Link to="/register" className="btn btn-primary">Get Started</Link>
           </div>
-        </div>
-      </nav>
 
-      <section className="hero">
-        <div className="hero-content">
-          <div className="hero-badge">AI-Powered Resume Builder</div>
-          <h1>Build Your Dream Resume<br /><span className="hero-highlight">in Minutes</span></h1>
-          <p className="hero-text">
-            Create professional, ATS-optimized resumes with the power of AI. Stand out from the crowd and land your dream job.
-          </p>
-          <div className="hero-actions">
-            <Link to="/register" className="btn btn-primary btn-lg">
-              Start Building Free <ArrowRight size={18} />
+          <div className="landing-nav-actions">
+            <Link to="/login" className="landing-login">
+              Log in
             </Link>
-            <a href="#features" className="btn btn-secondary btn-lg">Learn More</a>
+            <Link to="/register" className="landing-btn landing-btn-primary landing-btn-sm">
+              Get started
+              <ArrowRight size={15} aria-hidden="true" />
+            </Link>
           </div>
-          <div className="hero-stats">
-            <div className="hero-stat">
-              <strong>10K+</strong>
-              <span>Resumes Created</span>
-            </div>
-            <div className="hero-stat">
-              <strong>85%</strong>
-              <span>Interview Rate</span>
-            </div>
-            <div className="hero-stat">
-              <strong>50+</strong>
-              <span>Templates</span>
-            </div>
-          </div>
-        </div>
-        <div className="hero-visual">
-          <div className="hero-card hero-card-1">
-            <div className="hero-card-header"></div>
-            <div className="hero-card-line"></div>
-            <div className="hero-card-line short"></div>
-            <div className="hero-card-line"></div>
-            <div className="hero-card-line short"></div>
-          </div>
-          <div className="hero-card hero-card-2">
-            <div className="hero-card-header"></div>
-            <div className="hero-card-line"></div>
-            <div className="hero-card-line short"></div>
-          </div>
-        </div>
-      </section>
 
-      <section id="features" className="features">
-        <div className="section-container">
-          <div className="section-header">
-            <h2>Everything You Need</h2>
-            <p>Powerful features to help you create the perfect resume</p>
-          </div>
-          <div className="features-grid">
-            {features.map((f, i) => (
-              <div key={i} className="feature-card">
-                <div className="feature-icon">{f.icon}</div>
-                <h3>{f.title}</h3>
-                <p>{f.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+          <button
+            type="button"
+            className="landing-menu-btn"
+            onClick={() => setMenuOpen((open) => !open)}
+            aria-expanded={menuOpen}
+            aria-controls="landing-mobile-menu"
+            aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+          >
+            {menuOpen ? <X size={21} /> : <Menu size={21} />}
+          </button>
+        </nav>
 
-      <section id="about" className="about">
-        <div className="section-container">
-          <div className="about-grid">
-            <div className="about-content">
-              <h2>Why Choose Resumehai?</h2>
-              <p>
-                We combine cutting-edge AI technology with industry best practices to help you create resumes that get results. Our platform understands what recruiters look for and helps you highlight your strengths.
+        {menuOpen && (
+          <div id="landing-mobile-menu" className="landing-mobile-menu">
+            <a href="#features" onClick={closeMenu}>
+              Features
+            </a>
+            <a href="#how-it-works" onClick={closeMenu}>
+              How it works
+            </a>
+            <a href="#testimonials" onClick={closeMenu}>
+              Stories
+            </a>
+            <a href="#contact" onClick={closeMenu}>
+              Contact
+            </a>
+            <div className="landing-mobile-actions">
+              <Link to="/login" className="landing-btn landing-btn-secondary" onClick={closeMenu}>
+                Log in
+              </Link>
+              <Link to="/register" className="landing-btn landing-btn-primary" onClick={closeMenu}>
+                Get started
+                <ArrowRight size={16} aria-hidden="true" />
+              </Link>
+            </div>
+          </div>
+        )}
+      </header>
+
+      <main>
+        <section className="landing-hero">
+          <div className="landing-container landing-hero-inner">
+            <div className="landing-hero-copy">
+              <span className="landing-eyebrow">
+                <Sparkles size={15} aria-hidden="true" />
+                AI resume builder · ATS-ready
+              </span>
+
+              <h1>
+                Build a resume that gets you <span className="landing-highlight">shortlisted</span>.
+              </h1>
+
+              <p className="landing-hero-text">
+                AI writes, tailors, and scores your resume against real job descriptions — so you
+                spend less time formatting and more time interviewing.
               </p>
-              <ul className="about-list">
-                <li><CheckCircle size={18} /> ATS-optimized formatting</li>
-                <li><CheckCircle size={18} /> Industry-specific keywords</li>
-                <li><CheckCircle size={18} /> Real-time content suggestions</li>
-                <li><CheckCircle size={18} /> Professional design templates</li>
-              </ul>
-            </div>
-            <div className="about-stats">
-              <div className="stat-card">
-                <div className="stat-number">98%</div>
-                <div className="stat-label">Customer Satisfaction</div>
-              </div>
-              <div className="stat-card">
-                <div className="stat-number">3x</div>
-                <div className="stat-label">More Interview Calls</div>
-              </div>
-              <div className="stat-card">
-                <div className="stat-number">24/7</div>
-                <div className="stat-label">AI Assistant Available</div>
-              </div>
-              <div className="stat-card">
-                <div className="stat-number">100%</div>
-                <div className="stat-label">Free to Start</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
-      <section id="contact" className="contact">
-        <div className="section-container">
-          <div className="section-header">
-            <h2>Get In Touch</h2>
-            <p>Have questions? We'd love to hear from you.</p>
-          </div>
-          <div className="contact-grid">
-            <div className="contact-info">
-              <div className="contact-item">
-                <Mail size={20} />
-                <div>
-                  <strong>Email</strong>
-                  <span>support@resumehai.com</span>
-                </div>
+              <div className="landing-hero-actions">
+                <Link to="/register" className="landing-btn landing-btn-primary">
+                  Build my resume free
+                  <ArrowRight size={17} aria-hidden="true" />
+                </Link>
+                <a href="#how-it-works" className="landing-btn landing-btn-secondary">
+                  See how it works
+                </a>
               </div>
-              <div className="contact-item">
-                <Phone size={20} />
-                <div>
-                  <strong>Phone</strong>
-                  <span>+1 (555) 123-4567</span>
-                </div>
-              </div>
-              <div className="contact-item">
-                <MapPin size={20} />
-                <div>
-                  <strong>Address</strong>
-                  <span>San Francisco, CA</span>
-                </div>
-              </div>
-            </div>
-            <form className="contact-form" onSubmit={handleSubmit}>
-              <input
-                type="text"
-                className="input"
-                placeholder="Your Name"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                required
-              />
-              <input
-                type="email"
-                className="input"
-                placeholder="Your Email"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                required
-              />
-              <textarea
-                className="input"
-                rows={4}
-                placeholder="Your Message"
-                value={formData.message}
-                onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                required
-              />
-              <button type="submit" className="btn btn-primary btn-lg" style={{ width: '100%' }}>
-                {submitted ? 'Message Sent!' : 'Send Message'}
-              </button>
-            </form>
-          </div>
-        </div>
-      </section>
 
-      <footer className="landing-footer">
-        <div className="footer-content">
-          <div className="footer-brand">
-            <Link to="/" className="landing-logo">
-              <FileText size={24} />
-              <span>Resumehai</span>
-            </Link>
-            <p>Build professional resumes with AI-powered assistance.</p>
-          </div>
-          <div className="footer-links">
-            <div className="footer-col">
-              <h4>Product</h4>
-              <a href="#features">Features</a>
-              <a href="#about">About</a>
-              <Link to="/register">Get Started</Link>
+              <div className="landing-hero-trust">
+                <div className="landing-avatars" aria-hidden="true">
+                  <span className="landing-avatar landing-avatar-1">PN</span>
+                  <span className="landing-avatar landing-avatar-2">DR</span>
+                  <span className="landing-avatar landing-avatar-3">AK</span>
+                  <span className="landing-avatar landing-avatar-4">JS</span>
+                </div>
+                <div className="landing-trust-copy">
+                  <div className="landing-stars" role="img" aria-label="Rated 5 out of 5">
+                    {[0, 1, 2, 3, 4].map((star) => (
+                      <Star key={star} size={13} fill="currentColor" aria-hidden="true" />
+                    ))}
+                  </div>
+                  <span>Trusted by 10,000+ job seekers</span>
+                </div>
+              </div>
             </div>
-            <div className="footer-col">
-              <h4>Support</h4>
-              <a href="#contact">Contact</a>
-              <a href="#">Help Center</a>
-              <a href="#">Privacy Policy</a>
+
+            <div className="landing-hero-visual" aria-hidden="true">
+              <div className="landing-resume-window">
+                <div className="landing-window-bar">
+                  <span className="landing-window-dot" />
+                  <span className="landing-window-dot" />
+                  <span className="landing-window-dot" />
+                  <div className="landing-window-url">resumehai.app/editor</div>
+                </div>
+
+                <div className="landing-resume">
+                  <div className="landing-resume-top">
+                    <div className="landing-resume-avatar">AS</div>
+                    <div>
+                      <p className="landing-resume-name">Aarav Sharma</p>
+                      <p className="landing-resume-role">Senior Product Designer</p>
+                    </div>
+                  </div>
+
+                  <div className="landing-resume-contact">
+                    <span>aarav@email.com</span>
+                    <span>San Francisco, CA</span>
+                  </div>
+
+                  <div className="landing-resume-divider" />
+
+                  <p className="landing-resume-heading">Experience</p>
+                  <div className="landing-resume-job">
+                    <strong>Senior Product Designer</strong>
+                    <span>2021 — Present</span>
+                  </div>
+                  <p className="landing-resume-company">Northstar Labs</p>
+                  <ul className="landing-resume-bullets">
+                    <li>Led onboarding redesign that lifted activation by 28%.</li>
+                    <li>Built a design system used by 4 product teams.</li>
+                  </ul>
+
+                  <div className="landing-resume-divider" />
+
+                  <p className="landing-resume-heading">Skills</p>
+                  <div className="landing-resume-skills">
+                    <span className="landing-skill">Figma</span>
+                    <span className="landing-skill">Design Systems</span>
+                    <span className="landing-skill">Prototyping</span>
+                    <span className="landing-skill">User Research</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="landing-float landing-float-ats">
+                <div className="landing-ats-ring">94</div>
+                <div>
+                  <strong>ATS score</strong>
+                  <span>Top 5% of resumes</span>
+                </div>
+              </div>
+
+              <div className="landing-float landing-float-ai">
+                <div className="landing-float-ai-icon">
+                  <Sparkles size={17} />
+                </div>
+                <div>
+                  <strong>AI rewrite</strong>
+                  <span>Added 2 impact metrics</span>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-        <div className="footer-bottom">
-          <p>&copy; 2026 Resumehai. All rights reserved.</p>
-        </div>
-      </footer>
+
+          <div className="landing-container">
+            <div className="landing-statsbar">
+              {stats.map((stat) => (
+                <div key={stat.label} className="landing-stat">
+                  <strong>{stat.value}</strong>
+                  <span>{stat.label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      </main>
     </div>
   );
 }
