@@ -11,3 +11,7 @@ uploads/
 
 .DS_Store
 .vscode/
+
+# Python
+__pycache__/
+*.pyc
