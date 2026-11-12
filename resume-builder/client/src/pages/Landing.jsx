@@ -64,6 +64,30 @@ const steps = [
   },
 ];
 
+const testimonials = [
+  {
+    quote:
+      'I updated my resume on a Sunday and had two interviews booked by Wednesday. The ATS score showed me exactly what was missing.',
+    name: 'Priya Nair',
+    role: 'Product Manager',
+    initials: 'PN',
+  },
+  {
+    quote:
+      'The AI suggestions are specific, not generic. Every bullet point sounds like something a recruiter would actually want to read.',
+    name: 'Daniel Reyes',
+    role: 'Data Analyst',
+    initials: 'DR',
+  },
+  {
+    quote:
+      'Finally, a builder that does not make my resume look like a template. Clean layouts, fast export, zero formatting headaches.',
+    name: 'Aisha Khan',
+    role: 'UX Designer',
+    initials: 'AK',
+  },
+];
+
 const stats = [
   { value: '10K+', label: 'Resumes created' },
   { value: '85%', label: 'Interview rate' },
@@ -328,6 +352,108 @@ function Landing() {
                 <ArrowRight size={17} aria-hidden="true" />
               </Link>
             </div>
+          </div>
+        </section>
+
+        <section id="about" className="landing-section landing-about" aria-labelledby="about-title">
+          <div className="landing-container landing-about-grid">
+            <div className="landing-about-copy">
+              <span className="landing-kicker">Why Resumehai</span>
+              <h2 id="about-title">Designed to pass the six-second scan</h2>
+              <p>
+                Recruiters skim. Applicant tracking systems filter. Resumehai optimizes for both, so
+                your experience gets read instead of skipped.
+              </p>
+
+              <ul className="landing-checklist">
+                <li>
+                  <CheckCircle2 className="landing-check" size={18} aria-hidden="true" />
+                  ATS-optimized formatting
+                </li>
+                <li>
+                  <CheckCircle2 className="landing-check" size={18} aria-hidden="true" />
+                  Job-specific keywords
+                </li>
+                <li>
+                  <CheckCircle2 className="landing-check" size={18} aria-hidden="true" />
+                  Quantified achievements
+                </li>
+                <li>
+                  <CheckCircle2 className="landing-check" size={18} aria-hidden="true" />
+                  Instant readability
+                </li>
+              </ul>
+            </div>
+
+            <div className="landing-about-stats">
+              <div className="landing-stat-card">
+                <div className="landing-stat-value">98%</div>
+                <div className="landing-stat-desc">Customer satisfaction</div>
+              </div>
+              <div className="landing-stat-card">
+                <div className="landing-stat-value">3x</div>
+                <div className="landing-stat-desc">More interview calls</div>
+              </div>
+              <div className="landing-stat-card">
+                <div className="landing-stat-value">24/7</div>
+                <div className="landing-stat-desc">AI assistant available</div>
+              </div>
+              <div className="landing-stat-card">
+                <div className="landing-stat-value">100%</div>
+                <div className="landing-stat-desc">Free to start</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section
+          id="testimonials"
+          className="landing-section landing-testimonials"
+          aria-labelledby="testimonials-title"
+        >
+          <div className="landing-container">
+            <div className="landing-section-head">
+              <span className="landing-kicker">Job seeker stories</span>
+              <h2 id="testimonials-title">Real resumes. Real interviews.</h2>
+              <p>
+                A few results from people who stopped guessing and started applying with confidence.
+              </p>
+            </div>
+
+            <div className="landing-testimonial-grid">
+              {testimonials.map((testimonial) => (
+                <figure key={testimonial.name} className="landing-testimonial">
+                  <div className="landing-testimonial-stars" role="img" aria-label="5 out of 5 stars">
+                    {[0, 1, 2, 3, 4].map((star) => (
+                      <Star key={star} size={13} fill="currentColor" aria-hidden="true" />
+                    ))}
+                  </div>
+                  <blockquote>&ldquo;{testimonial.quote}&rdquo;</blockquote>
+                  <figcaption className="landing-testimonial-author">
+                    <div className="landing-testimonial-avatar" aria-hidden="true">
+                      {testimonial.initials}
+                    </div>
+                    <div>
+                      <strong>{testimonial.name}</strong>
+                      <span>{testimonial.role}</span>
+                    </div>
+                  </figcaption>
+                </figure>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="landing-cta" aria-labelledby="cta-title">
+          <div className="landing-container landing-cta-inner">
+            <div>
+              <h2 id="cta-title">Your next role is one better resume away.</h2>
+              <p>Start free. No credit card, no templates to wrestle with.</p>
+            </div>
+            <Link to="/register" className="landing-btn landing-btn-light">
+              Build my resume free
+              <ArrowRight size={17} aria-hidden="true" />
+            </Link>
           </div>
         </section>
       </main>
