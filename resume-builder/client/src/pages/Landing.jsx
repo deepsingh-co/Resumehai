@@ -97,8 +97,17 @@ const stats = [
 
 function Landing() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [formData, setFormData] = useState({ name: '', email: '', message: '' });
+  const [submitted, setSubmitted] = useState(false);
 
   const closeMenu = () => setMenuOpen(false);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setSubmitted(true);
+    setFormData({ name: '', email: '', message: '' });
+    setTimeout(() => setSubmitted(false), 4000);
+  };
 
   return (
     <div className="landing">
@@ -456,7 +465,155 @@ function Landing() {
             </Link>
           </div>
         </section>
+
+        <section id="contact" className="landing-section landing-contact" aria-labelledby="contact-title">
+          <div className="landing-container landing-contact-grid">
+            <div className="landing-contact-copy">
+              <span className="landing-kicker">Contact</span>
+              <h2 id="contact-title">Questions before you start?</h2>
+              <p>Send us a note and we will point you in the right direction.</p>
+
+              <div className="landing-contact-list">
+                <div className="landing-contact-item">
+                  <div className="landing-contact-icon">
+                    <Mail size={18} aria-hidden="true" />
+                  </div>
+                  <div>
+                    <strong>Email</strong>
+                    <a href="mailto:support@resumehai.com">support@resumehai.com</a>
+                  </div>
+                </div>
+
+                <div className="landing-contact-item">
+                  <div className="landing-contact-icon">
+                    <MapPin size={18} aria-hidden="true" />
+                  </div>
+                  <div>
+                    <strong>Location</strong>
+                    <span>San Francisco, CA</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="landing-contact-note">
+                <ShieldCheck size={17} aria-hidden="true" />
+                <span>We reply within one business day. Your details are never shared.</span>
+              </div>
+            </div>
+
+            <form className="landing-form" onSubmit={handleSubmit} aria-label="Contact form">
+              <div className="landing-form-row">
+                <div className="landing-field">
+                  <label htmlFor="landing-name">Name</label>
+                  <input
+                    id="landing-name"
+                    name="name"
+                    type="text"
+                    placeholder="Your name"
+                    autoComplete="name"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    required
+                  />
+                </div>
+
+                <div className="landing-field">
+                  <label htmlFor="landing-email">Email</label>
+                  <input
+                    id="landing-email"
+                    name="email"
+                    type="email"
+                    placeholder="you@example.com"
+                    autoComplete="email"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="landing-field">
+                <label htmlFor="landing-message">Message</label>
+                <textarea
+                  id="landing-message"
+                  name="message"
+                  rows={5}
+                  placeholder="How can we help?"
+                  value={formData.message}
+                  onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                  required
+                />
+              </div>
+
+              <button type="submit" className="landing-btn landing-btn-primary landing-btn-block">
+                {submitted ? (
+                  <>
+                    <CheckCircle2 size={18} aria-hidden="true" />
+                    Message sent
+                  </>
+                ) : (
+                  <>
+                    Send message
+                    <ArrowRight size={17} aria-hidden="true" />
+                  </>
+                )}
+              </button>
+
+              <p className="landing-form-note" role="status" aria-live="polite">
+                {submitted ? "Thanks — we'll get back to you within one business day." : ''}
+              </p>
+            </form>
+          </div>
+        </section>
       </main>
+
+      <footer className="landing-footer">
+        <div className="landing-container">
+          <div className="landing-footer-grid">
+            <div className="landing-footer-brand">
+              <Link to="/" className="landing-logo">
+                <span className="landing-logo-mark">
+                  <FileText size={20} strokeWidth={2.2} aria-hidden="true" />
+                </span>
+                <span>Resumehai</span>
+              </Link>
+              <p>AI-powered resumes for people who would rather interview than format.</p>
+            </div>
+
+            <div>
+              <h4>Product</h4>
+              <div className="landing-footer-links">
+                <a href="#features">Features</a>
+                <a href="#how-it-works">How it works</a>
+                <a href="#testimonials">Stories</a>
+              </div>
+            </div>
+
+            <div>
+              <h4>Company</h4>
+              <div className="landing-footer-links">
+                <a href="#about">About</a>
+                <a href="#contact">Contact</a>
+                <a href="mailto:support@resumehai.com">Support</a>
+              </div>
+            </div>
+
+            <div>
+              <h4>Account</h4>
+              <div className="landing-footer-links">
+                <Link to="/login">Log in</Link>
+                <Link to="/register">Create account</Link>
+                <Link to="/dashboard">Dashboard</Link>
+              </div>
+            </div>
+          </div>
+
+          <div className="landing-footer-bottom">
+            <span>&copy; {new Date().getFullYear()} Resumehai. All rights reserved.</span>
+            <span>Built for job seekers who would rather interview than format.</span>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
