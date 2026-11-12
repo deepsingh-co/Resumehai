@@ -20,6 +20,50 @@ import {
 } from 'lucide-react';
 import '../styles/landing.css';
 
+const features = [
+  {
+    icon: Sparkles,
+    title: 'AI content engine',
+    description: 'Turn rough notes into recruiter-ready bullet points with measurable impact.',
+  },
+  {
+    icon: Gauge,
+    title: 'ATS match score',
+    description: 'Paste a job description and see exactly what to fix before you apply.',
+  },
+  {
+    icon: LayoutTemplate,
+    title: 'Recruiter-approved templates',
+    description: 'Clean, ATS-safe layouts that look sharp in every PDF viewer.',
+  },
+  {
+    icon: Download,
+    title: 'One-click PDF export',
+    description: 'Download a pixel-perfect PDF, ready to attach or upload.',
+  },
+];
+
+const steps = [
+  {
+    icon: PenLine,
+    label: 'Step 01',
+    title: 'Add your experience',
+    description: 'Fill in your details or start from a demo resume. The editor keeps everything structured.',
+  },
+  {
+    icon: Target,
+    label: 'Step 02',
+    title: 'Match it to the role',
+    description: 'Paste a job description. AI highlights missing keywords and rewrites weak bullet points.',
+  },
+  {
+    icon: ClipboardCheck,
+    label: 'Step 03',
+    title: 'Export and apply',
+    description: 'Check your ATS score, pick a template, and download a PDF that is ready to send.',
+  },
+];
+
 const stats = [
   { value: '10K+', label: 'Resumes created' },
   { value: '85%', label: 'Interview rate' },
@@ -221,6 +265,68 @@ function Landing() {
                   <span>{stat.label}</span>
                 </div>
               ))}
+            </div>
+          </div>
+        </section>
+
+        <section id="features" className="landing-section landing-features" aria-labelledby="features-title">
+          <div className="landing-container">
+            <div className="landing-section-head">
+              <span className="landing-kicker">Features</span>
+              <h2 id="features-title">Everything you need to get shortlisted</h2>
+              <p>
+                From the first draft to the final PDF, Resumehai handles the details recruiters and
+                applicant tracking systems look for.
+              </p>
+            </div>
+
+            <div className="landing-feature-grid">
+              {features.map((feature, index) => {
+                const Icon = feature.icon;
+                return (
+                  <article key={feature.title} className="landing-feature-card">
+                    <span className="landing-feature-index">{String(index + 1).padStart(2, '0')}</span>
+                    <div className="landing-feature-icon">
+                      <Icon size={22} aria-hidden="true" />
+                    </div>
+                    <h3>{feature.title}</h3>
+                    <p>{feature.description}</p>
+                  </article>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
+        <section id="how-it-works" className="landing-section landing-how" aria-labelledby="how-title">
+          <div className="landing-container">
+            <div className="landing-section-head">
+              <span className="landing-kicker">How it works</span>
+              <h2 id="how-title">Three steps from blank page to interview-ready</h2>
+              <p>No design skills, no formatting rabbit holes. Just a resume that fits the role.</p>
+            </div>
+
+            <div className="landing-steps">
+              {steps.map((step) => {
+                const Icon = step.icon;
+                return (
+                  <article key={step.title} className="landing-step">
+                    <div className="landing-step-icon">
+                      <Icon size={22} aria-hidden="true" />
+                    </div>
+                    <span className="landing-step-label">{step.label}</span>
+                    <h3>{step.title}</h3>
+                    <p>{step.description}</p>
+                  </article>
+                );
+              })}
+            </div>
+
+            <div className="landing-inline-cta">
+              <Link to="/register" className="landing-btn landing-btn-primary">
+                Start building — it&apos;s free
+                <ArrowRight size={17} aria-hidden="true" />
+              </Link>
             </div>
           </div>
         </section>
