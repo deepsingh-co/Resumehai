@@ -2,9 +2,11 @@
 
 A full-stack MERN application for creating professional resumes with AI-powered suggestions, multiple templates, PDF export, and ATS score checking.
 
+![Resumehai landing page](../docs/screenshots/landing-page.jpg)
+
 ## Features
 
-- **Landing Page** - Hero section, feature cards, about section, contact form
+- **Landing Page** - Responsive Swiss-style design with floating navigation, product-led hero and resume mockup, stats bar, feature grid, three-step workflow, about section, testimonials, CTA band, contact form, and footer
 - **User Authentication** - Secure JWT-based auth with register/login
 - **Resume Management** - Create, edit, duplicate, and delete resumes
 - **Dashboard** - Resume cards with template picker and demo resume options
@@ -25,6 +27,28 @@ A full-stack MERN application for creating professional resumes with AI-powered 
 - **Dark Mode** - Full dark theme support
 - **Responsive Design** - Optimized for desktop, tablet, and mobile
 
+## Landing Page Design
+
+The public landing page uses a scoped Swiss-inspired design system in `client/src/styles/landing.css`.
+
+| Token | Value |
+|-------|-------|
+| Primary | `#0EA5E9` |
+| Deep navy | `#0C4A6E` |
+| CTA | `#C2410C` |
+| Background | `#F0F9FF` |
+| Heading font | Poppins |
+| Body font | Open Sans |
+
+Highlights:
+- Floating glass navigation with an accessible mobile menu
+- Product-led hero with resume mockup, ATS score preview, and trust signals
+- Stats bar, feature grid, three-step workflow, about section, testimonials, CTA band, contact form, and footer
+- Visible focus states, semantic sections, and `prefers-reduced-motion` support
+- No horizontal overflow from 320px to 1440px
+- Axe WCAG 2.1 A/AA audit: zero violations on desktop and mobile
+- SEO title, meta description, and custom favicon
+
 ## Tech Stack
 
 - **Frontend**: React 18, Vite, React Router v6, CSS custom properties
@@ -32,7 +56,7 @@ A full-stack MERN application for creating professional resumes with AI-powered 
 - **AI**: OpenAI GPT-3.5-turbo (with local fallback for ATS scoring)
 - **PDF**: html2pdf.js
 - **Auth**: JWT with bcrypt
-- **Fonts**: Google Fonts (Inter, Caveat, Fira Code)
+- **Fonts**: Google Fonts (Poppins, Open Sans, Inter, Caveat, Fira Code)
 
 ## Prerequisites
 
@@ -76,12 +100,15 @@ This starts:
 | `MONGODB_URI` | MongoDB connection string | Yes |
 | `JWT_SECRET` | Secret for JWT tokens | Yes |
 | `OPENAI_API_KEY` | OpenAI API key | Optional (AI features work without it) |
+| `VITE_API_URL` | Frontend API base URL | No (default: `http://localhost:5000/api`) |
 
 ## Project Structure
 
 ```
 resume-builder/
 ├── client/                 # React frontend
+│   ├── public/
+│   │   └── favicon.svg              # Custom app favicon
 │   ├── src/
 │   │   ├── components/     # Reusable components
 │   │   │   ├── AIAssistant.jsx      # AI suggestion popover
@@ -102,10 +129,12 @@ resume-builder/
 │   │   │   └── Settings.jsx         # User settings
 │   │   ├── services/
 │   │   │   └── api.js               # Axios API client
+│   │   ├── styles/
+│   │   │   └── landing.css          # Landing page design system
 │   │   ├── App.jsx                  # Routing
-│   │   ├── index.css                # All styles + templates
+│   │   ├── index.css                # App-wide styles + templates
 │   │   └── main.jsx                 # Entry point
-│   ├── index.html                    # Google Fonts links
+│   ├── index.html                    # Fonts, SEO metadata, favicon
 │   └── vite.config.js               # Port 3000, proxy to 5000
 ├── server/                 # Express backend
 │   ├── models/
