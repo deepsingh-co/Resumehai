@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import Navbar from './components/Navbar';
 import Landing from './pages/Landing';
@@ -40,8 +40,8 @@ function PublicRoute({ children }) {
 
 function App() {
   const { isAuthenticated, loading } = useAuth();
-  const location = window.location.pathname;
-  const isLanding = location === '/';
+  const { pathname } = useLocation();
+  const isFullBleed = pathname === '/' || pathname === '/login' || pathname === '/register';
 
   if (loading) {
     return (
@@ -54,7 +54,7 @@ function App() {
   return (
     <div className="app">
       {isAuthenticated && <Navbar />}
-      <main style={isLanding ? {} : { padding: '1.5rem', maxWidth: '1400px', margin: '0 auto' }}>
+      <main style={isFullBleed ? {} : { padding: '1.5rem', maxWidth: '1400px', margin: '0 auto' }}>
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
