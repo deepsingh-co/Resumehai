@@ -1196,49 +1196,6 @@ input, textarea, select {
   letter-spacing: 0.05em;
 }
 
-/* Auth Pages */
-.auth-page {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 2rem;
-}
-
-.auth-card {
-  width: 100%;
-  max-width: 420px;
-  padding: 2.5rem;
-}
-
-.auth-header {
-  text-align: center;
-  margin-bottom: 2rem;
-}
-
-.auth-header h1 {
-  font-size: 1.75rem;
-  font-weight: 700;
-}
-
-.auth-header p {
-  color: var(--color-text-muted);
-  margin-top: 0.5rem;
-}
-
-.auth-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.auth-footer {
-  text-align: center;
-  margin-top: 1.5rem;
-  color: var(--color-text-muted);
-  font-size: 0.875rem;
-}
-
 /* Dashboard */
 .dashboard-header {
   display: flex;
