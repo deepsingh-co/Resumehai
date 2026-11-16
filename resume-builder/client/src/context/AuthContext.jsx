@@ -48,12 +48,17 @@ export function AuthProvider({ children }) {
     setUser(null);
   };
 
+  const updateUser = (updates) => {
+    setUser((current) => (current ? { ...current, ...updates } : current));
+  };
+
   const value = {
     user,
     loading,
     login,
     register,
     logout,
+    updateUser,
     isAuthenticated: !!user
   };
 
