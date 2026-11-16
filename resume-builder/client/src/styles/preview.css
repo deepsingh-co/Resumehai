@@ -1,0 +1,419 @@
+/* ==========================================================================
+   Preview — document canvas with export rail and ATS slide-over
+   ========================================================================== */
+
+.preview-page {
+  max-width: 1180px;
+  margin-inline: auto;
+}
+
+.preview-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.9rem;
+  min-height: 60vh;
+  color: var(--app-muted);
+  font-size: 0.875rem;
+}
+
+.preview-spin {
+  animation: preview-spin 0.9s linear infinite;
+}
+
+@keyframes preview-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Header ------------------------------------------------------------------- */
+.preview-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.preview-head__copy {
+  min-width: 0;
+}
+
+.preview-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.8rem;
+  color: var(--app-muted);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
+
+.preview-back:hover {
+  color: var(--app-primary-deep);
+}
+
+.preview-head h1 {
+  overflow-wrap: anywhere;
+  color: var(--app-ink);
+  font-size: clamp(1.5rem, 2.6vw, 2.05rem);
+  letter-spacing: -0.03em;
+}
+
+.preview-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem 0.85rem;
+  margin-top: 0.6rem;
+}
+
+.preview-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.28rem 0.6rem;
+  background: var(--app-primary-soft);
+  border-radius: 999px;
+  color: var(--app-primary-deep);
+  font-family: 'Poppins', 'Inter', sans-serif;
+  font-size: 0.6875rem;
+  font-weight: 600;
+}
+
+.preview-meta__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--app-muted);
+  font-size: 0.75rem;
+}
+
+.preview-head__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+/* Layout ------------------------------------------------------------------- */
+.preview-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.preview-canvas {
+  min-width: 0;
+  padding: 1rem;
+  background-color: #eaf6ff;
+  background-image: radial-gradient(rgba(12, 74, 110, 0.13) 1px, transparent 1px);
+  background-size: 18px 18px;
+  border: 1px solid var(--app-line);
+  border-radius: 18px;
+}
+
+[data-theme="dark"] .preview-canvas {
+  background-color: #0b1220;
+  background-image: radial-gradient(rgba(148, 163, 184, 0.16) 1px, transparent 1px);
+}
+
+.preview-canvas__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.15rem 0.3rem 0.85rem;
+}
+
+.preview-canvas__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--app-ink-soft);
+  font-family: 'Poppins', 'Inter', sans-serif;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.preview-canvas__dot {
+  width: 7px;
+  height: 7px;
+  background: #10b981;
+  border-radius: 50%;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.18);
+}
+
+.preview-canvas__page {
+  color: var(--app-muted);
+  font-size: 0.6875rem;
+  font-weight: 600;
+}
+
+.preview-paper {
+  max-width: 860px;
+  margin-inline: auto;
+  overflow: hidden;
+  background: #ffffff;
+  border: 1px solid #dbeafe;
+  border-radius: 10px;
+  box-shadow: 0 30px 60px -38px rgba(12, 74, 110, 0.55);
+}
+
+.preview-paper .resume-preview {
+  min-height: auto;
+}
+
+/* Rail --------------------------------------------------------------------- */
+.preview-rail {
+  position: sticky;
+  top: 96px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.preview-card {
+  padding: 1.25rem;
+  background: var(--app-surface);
+  border: 1px solid var(--app-line);
+  border-radius: 16px;
+  box-shadow: var(--app-shadow-sm);
+}
+
+.preview-card__eyebrow {
+  display: inline-block;
+  margin-bottom: 0.4rem;
+  color: var(--app-primary-deep);
+  font-family: 'Poppins', 'Inter', sans-serif;
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.preview-card h2 {
+  color: var(--app-ink);
+  font-size: 1.1rem;
+}
+
+.preview-card p {
+  margin: 0.45rem 0 1rem !important;
+  color: var(--app-muted);
+  font-size: 0.8125rem;
+  line-height: 1.6;
+}
+
+.preview-card .btn + .btn {
+  margin-top: 0.5rem;
+}
+
+.preview-ats {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 1rem;
+  background: var(--app-surface);
+  border: 1px solid var(--app-line);
+  border-radius: 14px;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.preview-ats:hover {
+  background: var(--app-line-soft);
+  border-color: var(--app-primary);
+}
+
+.preview-ats__icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  background: var(--app-primary-soft);
+  border-radius: 10px;
+  color: var(--app-primary-deep);
+}
+
+.preview-ats__copy {
+  min-width: 0;
+  flex: 1;
+}
+
+.preview-ats__copy strong {
+  display: block;
+  color: var(--app-ink);
+  font-family: 'Poppins', 'Inter', sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.preview-ats__copy span {
+  display: block;
+  margin-top: 0.1rem;
+  color: var(--app-muted);
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+.preview-ats__chevron {
+  flex-shrink: 0;
+  color: var(--app-muted);
+}
+
+.preview-privacy {
+  display: flex;
+  gap: 0.55rem;
+  padding: 0.8rem;
+  background: var(--app-primary-soft);
+  border: 1px solid rgba(14, 165, 233, 0.2);
+  border-radius: 12px;
+  color: var(--app-primary-deep);
+}
+
+.preview-privacy svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.preview-privacy strong {
+  display: block;
+  color: var(--app-ink);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.preview-privacy span {
+  display: block;
+  margin-top: 0.1rem;
+  color: var(--app-muted);
+  font-size: 0.6875rem;
+  line-height: 1.45;
+}
+
+/* ATS panel ---------------------------------------------------------------- */
+.preview-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 290;
+  padding: 0;
+  background: rgba(8, 47, 73, 0.42);
+  border: 0;
+  backdrop-filter: blur(3px);
+  cursor: pointer;
+}
+
+.preview-page .ats-panel {
+  z-index: 300;
+  width: 420px;
+  border-left-color: var(--app-line);
+  box-shadow: var(--app-shadow-lg);
+  animation: preview-slide-in 0.22s ease-out;
+}
+
+@keyframes preview-slide-in {
+  from {
+    opacity: 0.5;
+    transform: translateX(28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Responsive --------------------------------------------------------------- */
+@media (max-width: 1100px) {
+  .preview-layout {
+    grid-template-columns: minmax(0, 1fr) 275px;
+  }
+}
+
+@media (max-width: 960px) {
+  .preview-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .preview-rail {
+    position: static;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+  }
+
+  .preview-privacy {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 700px) {
+  .preview-head {
+    align-items: flex-start;
+  }
+
+  .preview-head__actions {
+    width: 100%;
+  }
+
+  .preview-head__actions .btn {
+    flex: 1;
+  }
+
+  .preview-canvas {
+    padding: 0.65rem;
+    border-radius: 14px;
+  }
+
+  .preview-canvas__toolbar {
+    padding-bottom: 0.6rem;
+  }
+
+  .preview-paper {
+    border-radius: 8px;
+  }
+
+  .preview-rail {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .preview-head__actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .preview-head__actions .btn-primary {
+    grid-column: 1 / -1;
+  }
+
+  .preview-canvas__page {
+    display: none;
+  }
+
+  .preview-page .ats-panel {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .preview-page .ats-panel {
+    animation: none;
+  }
+
+  .preview-spin {
+    animation-duration: 1.4s;
+  }
+}
