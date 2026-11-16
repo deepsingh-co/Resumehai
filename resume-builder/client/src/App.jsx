@@ -9,6 +9,7 @@ import Editor from './pages/Editor';
 import Preview from './pages/Preview';
 import Settings from './pages/Settings';
 import LoadingSpinner from './components/LoadingSpinner';
+import './styles/app-shell.css';
 
 function PrivateRoute({ children }) {
   const { isAuthenticated, loading } = useAuth();
@@ -42,6 +43,7 @@ function App() {
   const { isAuthenticated, loading } = useAuth();
   const { pathname } = useLocation();
   const isFullBleed = pathname === '/' || pathname === '/login' || pathname === '/register';
+  const isWorkspace = pathname.startsWith('/resume');
 
   if (loading) {
     return (
@@ -53,19 +55,30 @@ function App() {
 
   return (
     <div className="app">
+      <a className="skip-link" href="#main-content">Skip to content</a>
       {isAuthenticated && <Navbar />}
-      <main style={isFullBleed ? {} : { padding: '1.5rem', maxWidth: '1400px', margin: '0 auto' }}>
-        <Routes>
-          <Route path="/" element={<Landing />} />
-          <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
-          <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
-          <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
-          <Route path="/resume/new" element={<PrivateRoute><Editor /></PrivateRoute>} />
-          <Route path="/resume/:id/edit" element={<PrivateRoute><Editor /></PrivateRoute>} />
-          <Route path="/resume/:id/preview" element={<PrivateRoute><Preview /></PrivateRoute>} />
-          <Route path="/settings" element={<PrivateRoute><Settings /></PrivateRoute>} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
+      <main
+        id="main-content"
+        tabIndex={-1}
+        className={[
+          'app-main',
+          isFullBleed ? 'app-main--bleed' : '',
+          isWorkspace ? 'app-main--wide' : '',
+        ].filter(Boolean).join(' ')}
+      >
+        <div className={isFullBleed ? undefined : 'app-shell'}>
+          <Routes>
+            <Route path="/" element={<Landing />} />
+            <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
+            <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
+            <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+            <Route path="/resume/new" element={<PrivateRoute><Editor /></PrivateRoute>} />
+            <Route path="/resume/:id/edit" element={<PrivateRoute><Editor /></PrivateRoute>} />
+            <Route path="/resume/:id/preview" element={<PrivateRoute><Preview /></PrivateRoute>} />
+            <Route path="/settings" element={<PrivateRoute><Settings /></PrivateRoute>} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </div>
       </main>
     </div>
   );
