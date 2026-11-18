@@ -1,15 +1,17 @@
-import { useState, useEffect, useRef } from 'react';
-import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
+import { useState, useEffect, useId, useRef } from 'react';
+import { Link, useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import api from '../services/api';
 import toast from 'react-hot-toast';
 import {
   Plus, Trash2, ChevronDown, ChevronUp,
-  Loader2, Download, FileText, X, Sparkles, Upload, Image, File, Target, Camera, RotateCcw
+  Loader2, Download, FileText, X, Sparkles, Upload, Image, File, Target, Camera, RotateCcw,
+  ArrowLeft, Save
 } from 'lucide-react';
 import ResumePreview from '../components/ResumePreview';
 import AIAssistant from '../components/AIAssistant';
 import ATSScore from '../components/ATSScore';
-import { demoResumes } from '../data/demoResumes';
+import { demoResumes, templateInfo } from '../data/demoResumes';
+import '../styles/editor.css';
 
 const SECTIONS = [
   { key: 'personalInfo', label: 'Personal Info' },
@@ -80,6 +82,20 @@ export default function Editor() {
     if (!isNew) loadResume();
   }, [id]);
 
+  useEffect(() => {
+    if (!aiOpen && !atsOpen) return undefined;
+
+    const closeOnEscape = (event) => {
+      if (event.key === 'Escape') {
+        setAiOpen(false);
+        setAtsOpen(false);
+      }
+    };
+
+    document.addEventListener('keydown', closeOnEscape);
+    return () => document.removeEventListener('keydown', closeOnEscape);
+  }, [aiOpen, atsOpen]);
+
   const loadResume = async () => {
     try {
       const res = await api.get(`/resumes/${id}`);
@@ -145,6 +161,7 @@ export default function Editor() {
   const toggle = (key) => setExpandedSections(prev => ({ ...prev, [key]: !prev[key] }));
 
   const handleAIRequest = (section, field, value, ctx = {}) => {
+    setAtsOpen(false);
     setAiContext({ section, field, value, ...ctx });
     setAiOpen(true);
   };
@@ -182,170 +199,265 @@ export default function Editor() {
 
   if (loading) {
     return (
-      <div className="editor-layout">
-        <div className="editor-sidebar" />
-        <div className="editor-preview">
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-            <Loader2 className="loading" style={{ width: '2rem', height: '2rem' }} />
-          </div>
+      <div className="editor-page">
+        <div className="editor-loading">
+          <Loader2 size={30} className="editor-spin" />
+          <p>Opening your editor…</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="editor-layout">
-      <aside className="editor-sidebar">
-        <div className="editor-sidebar-top">
-          <div className="editor-field">
-            <label className="label">Resume Title</label>
-            <input
-              type="text"
-              className="input"
-              value={resume.title}
-              onChange={e => update('title', e.target.value)}
-              placeholder="My Resume"
-            />
+    <div className="editor-page">
+      <header className="editor-topbar">
+        <div className="editor-topbar__left">
+          <Link to="/dashboard" className="editor-back" aria-label="Back to dashboard">
+            <ArrowLeft size={17} />
+          </Link>
+          <div className="editor-topbar__title">
+            <span className="editor-topbar__eyebrow">Resume editor</span>
+            <h1 title={resume.title}>{resume.title || 'Untitled resume'}</h1>
           </div>
-          <div className="editor-field">
-            <label className="label">Template</label>
-            <select className="input" value={resume.template} onChange={e => update('template', e.target.value)}>
-              <option value="modern">Modern</option>
-              <option value="classic">Classic</option>
-              <option value="minimal">Minimal</option>
-              <option value="creative">Creative</option>
-            </select>
-          </div>
-          <div className="editor-field">
-            <label className="label">Accent Color</label>
-            <div className="color-picker-row" style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', alignItems: 'center' }}>
-              {['#2563eb', '#7c3aed', '#059669', '#dc2626', '#ea580c', '#0891b2', '#4f46e5', '#be185d', '#1e293b'].map(color => (
-                <button
-                  key={color}
-                  className={`color-swatch ${(resume.accentColor || getDefaultColor(resume.template)) === color ? 'selected' : ''}`}
-                  style={{ background: color }}
-                  onClick={() => update('accentColor', color)}
-                  title={color}
-                />
-              ))}
-              <label className="color-swatch custom-color" title="Custom color">
-                <input
-                  type="color"
-                  value={resume.accentColor || getDefaultColor(resume.template)}
-                  onChange={e => update('accentColor', e.target.value)}
-                  style={{ display: 'none' }}
-                />
-                <span>+</span>
-              </label>
-            </div>
-          </div>
-          <div className="editor-field">
-            <label className="label">Font Style</label>
-            <div className="font-selector">
-              {[
-                { value: 'default', label: 'Default', preview: 'Aa' },
-                { value: 'serif', label: 'Serif', preview: 'Aa' },
-                { value: 'mono', label: 'Mono', preview: 'Aa' },
-                { value: 'handwriting', label: 'Handwriting', preview: 'Aa' },
-              ].map(font => (
-                <button
-                  key={font.value}
-                  className={`font-btn ${(resume.fontStyle || 'default') === font.value ? 'selected' : ''}`}
-                  onClick={() => update('fontStyle', font.value)}
-                >
-                  <span className={`font-preview font-${font.value}`}>{font.preview}</span>
-                  <span className="font-label">{font.label}</span>
-                </button>
-              ))}
-            </div>
-          </div>
+          <span className="editor-topbar__badge">
+            {templateInfo[resume.template]?.name || resume.template}
+          </span>
         </div>
 
-        <div className="editor-sections">
-          {SECTIONS.map(sec => (
-            <div key={sec.key} className="editor-section">
-              <button
-                onClick={() => toggle(sec.key)}
-                className="btn btn-ghost"
-                style={{ width: '100%', justifyContent: 'space-between', fontWeight: 600, marginBottom: expandedSections[sec.key] ? '0.75rem' : 0 }}
-              >
-                <span>{sec.label}</span>
-                <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  {Array.isArray(resume[sec.key]) && resume[sec.key].length > 0 && (
-                    <span className="badge badge-primary">{resume[sec.key].length}</span>
-                  )}
-                  {expandedSections[sec.key] ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                </span>
-              </button>
-
-              {expandedSections[sec.key] && (
-                <div className="editor-section-content">
-                  {sec.key === 'personalInfo' && renderPersonalInfo(resume.personalInfo, update, handleAIRequest)}
-                  {sec.key === 'experience' && renderExperience(resume.experience, updateArrayItem, addArrayItem, removeArrayItem, handleAIRequest)}
-                  {sec.key === 'education' && renderEducation(resume.education, updateArrayItem, addArrayItem, removeArrayItem, handleAIRequest)}
-                  {sec.key === 'skills' && renderSkills(resume.skills, updateArrayItem, addArrayItem, removeArrayItem)}
-                  {sec.key === 'projects' && renderProjects(resume.projects, updateArrayItem, addArrayItem, removeArrayItem, handleAIRequest)}
-                  {sec.key === 'certifications' && renderCertifications(resume.certifications, updateArrayItem, addArrayItem, removeArrayItem)}
-                  {sec.key === 'languages' && renderLanguages(resume.languages, updateArrayItem, addArrayItem, removeArrayItem)}
-                  {sec.key === 'customSections' && renderCustomSections(resume.customSections, updateArrayItem, addArrayItem, removeArrayItem)}
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-
-        <div className="editor-divider" />
-        <div className="editor-bottom-actions">
-          <div className="editor-save-row">
-            <button onClick={() => saveResume(false)} className="btn btn-primary" disabled={saving}>
-              {saving ? <Loader2 size={16} className="loading" /> : 'Save'}
-            </button>
-            <button onClick={handleExportPDF} className="btn btn-secondary" disabled={saving}>
-              <Download size={16} /> Export PDF
-            </button>
-          </div>
-          <button onClick={() => saveResume(true)} className="btn btn-ghost btn-block">
-            Save & Exit to Dashboard
-          </button>
-        </div>
-      </aside>
-
-      <div className="editor-preview">
-        <div className="editor-preview-toolbar">
+        <div className="editor-topbar__actions">
           <button
+            type="button"
             onClick={() => { setAtsOpen(!atsOpen); setAiOpen(false); }}
             className={`btn btn-sm ${atsOpen ? 'btn-primary' : 'btn-secondary'}`}
+            aria-expanded={atsOpen}
+            aria-label="Toggle ATS score panel"
           >
-            <Target size={14} /> ATS Score
+            <Target size={15} />
+            <span className="editor-topbar__btn-label">ATS score</span>
+          </button>
+          <button
+            type="button"
+            onClick={handleExportPDF}
+            className="btn btn-secondary btn-sm"
+            aria-label="Export PDF"
+          >
+            <Download size={15} />
+            <span className="editor-topbar__btn-label">Export</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => saveResume(false)}
+            className="btn btn-primary btn-sm"
+            disabled={saving}
+          >
+            {saving ? <Loader2 size={15} className="editor-spin" /> : <Save size={15} />}
+            {saving ? 'Saving…' : 'Save'}
           </button>
         </div>
+      </header>
 
-        <ResumePreview ref={previewRef} resume={resume} />
+      <div className="editor-layout">
+        <aside className="editor-sidebar" aria-label="Resume settings and sections">
+          <div className="editor-sidebar-top">
+            <div className="editor-panel-heading">
+              <h2>Design</h2>
+              <span>Look &amp; feel</span>
+            </div>
 
-        {aiOpen && (
-          <AIAssistant
-            context={aiContext}
-            onAccept={handleAIAccept}
-            onClose={() => setAiOpen(false)}
+            <div className="editor-field">
+              <label className="label" htmlFor="resume-title">Resume title</label>
+              <input
+                type="text"
+                id="resume-title"
+                className="input"
+                value={resume.title}
+                onChange={e => update('title', e.target.value)}
+                placeholder="My Resume"
+              />
+            </div>
+
+            <div className="editor-field">
+              <label className="label" htmlFor="resume-template">Template</label>
+              <select
+                id="resume-template"
+                className="input"
+                value={resume.template}
+                onChange={e => update('template', e.target.value)}
+              >
+                <option value="modern">Modern</option>
+                <option value="classic">Classic</option>
+                <option value="minimal">Minimal</option>
+                <option value="creative">Creative</option>
+              </select>
+            </div>
+
+            <div className="editor-field">
+              <label className="label">Accent color</label>
+              <div className="color-picker-row" role="group" aria-label="Accent color">
+                {['#2563eb', '#7c3aed', '#059669', '#dc2626', '#ea580c', '#0891b2', '#4f46e5', '#be185d', '#1e293b'].map(color => (
+                  <button
+                    key={color}
+                    type="button"
+                    className={`color-swatch ${(resume.accentColor || getDefaultColor(resume.template)) === color ? 'selected' : ''}`}
+                    style={{ background: color }}
+                    onClick={() => update('accentColor', color)}
+                    title={color}
+                    aria-label={`Set accent color to ${color}`}
+                    aria-pressed={(resume.accentColor || getDefaultColor(resume.template)) === color}
+                  />
+                ))}
+                <label className="color-swatch custom-color" title="Custom color">
+                  <input
+                    type="color"
+                    value={resume.accentColor || getDefaultColor(resume.template)}
+                    onChange={e => update('accentColor', e.target.value)}
+                    style={{ display: 'none' }}
+                    aria-label="Choose a custom accent color"
+                  />
+                  <span aria-hidden="true">+</span>
+                </label>
+              </div>
+            </div>
+
+            <div className="editor-field">
+              <label className="label">Font style</label>
+              <div className="font-selector" role="group" aria-label="Font style">
+                {[
+                  { value: 'default', label: 'Default', preview: 'Aa' },
+                  { value: 'serif', label: 'Serif', preview: 'Aa' },
+                  { value: 'mono', label: 'Mono', preview: 'Aa' },
+                  { value: 'handwriting', label: 'Handwriting', preview: 'Aa' },
+                ].map(font => (
+                  <button
+                    key={font.value}
+                    type="button"
+                    className={`font-btn ${(resume.fontStyle || 'default') === font.value ? 'selected' : ''}`}
+                    onClick={() => update('fontStyle', font.value)}
+                    aria-pressed={(resume.fontStyle || 'default') === font.value}
+                  >
+                    <span className={`font-preview font-${font.value}`}>{font.preview}</span>
+                    <span className="font-label">{font.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="editor-panel-heading editor-panel-heading--sections">
+            <h2>Sections</h2>
+            <span>{SECTIONS.length} sections</span>
+          </div>
+
+          <div className="editor-sections">
+            {SECTIONS.map(sec => (
+              <div key={sec.key} className="editor-section">
+                <button
+                  type="button"
+                  onClick={() => toggle(sec.key)}
+                  className="btn btn-ghost editor-section__toggle"
+                  aria-expanded={Boolean(expandedSections[sec.key])}
+                >
+                  <span>{sec.label}</span>
+                  <span className="editor-section__meta">
+                    {Array.isArray(resume[sec.key]) && resume[sec.key].length > 0 && (
+                      <span className="badge badge-primary">{resume[sec.key].length}</span>
+                    )}
+                    {expandedSections[sec.key] ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                  </span>
+                </button>
+
+                {expandedSections[sec.key] && (
+                  <div className="editor-section-content">
+                    {sec.key === 'personalInfo' && renderPersonalInfo(resume.personalInfo, update, handleAIRequest)}
+                    {sec.key === 'experience' && renderExperience(resume.experience, updateArrayItem, addArrayItem, removeArrayItem, handleAIRequest)}
+                    {sec.key === 'education' && renderEducation(resume.education, updateArrayItem, addArrayItem, removeArrayItem, handleAIRequest)}
+                    {sec.key === 'skills' && renderSkills(resume.skills, updateArrayItem, addArrayItem, removeArrayItem)}
+                    {sec.key === 'projects' && renderProjects(resume.projects, updateArrayItem, addArrayItem, removeArrayItem, handleAIRequest)}
+                    {sec.key === 'certifications' && renderCertifications(resume.certifications, updateArrayItem, addArrayItem, removeArrayItem)}
+                    {sec.key === 'languages' && renderLanguages(resume.languages, updateArrayItem, addArrayItem, removeArrayItem)}
+                    {sec.key === 'customSections' && renderCustomSections(resume.customSections, updateArrayItem, addArrayItem, removeArrayItem)}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          <div className="editor-sidebar-foot">
+            <button
+              type="button"
+              onClick={() => saveResume(true)}
+              className="btn btn-secondary btn-block"
+              disabled={saving}
+            >
+              <ArrowLeft size={15} />
+              Save &amp; exit
+            </button>
+          </div>
+        </aside>
+
+        <div className="editor-preview">
+          <div className="editor-preview__toolbar">
+            <span className="editor-preview__label">
+              <FileText size={14} />
+              Live preview
+            </span>
+            <span className="editor-preview__hint">Updates as you type</span>
+          </div>
+
+          <div className="editor-canvas">
+            <ResumePreview ref={previewRef} resume={resume} />
+          </div>
+        </div>
+      </div>
+
+      {aiOpen && (
+        <>
+          <button
+            type="button"
+            className="editor-scrim"
+            onClick={() => { setAiOpen(false); setAtsOpen(false); }}
+            aria-label="Close AI suggestions panel"
           />
-        )}
+          <div
+            className="editor-side-panel"
+            role="dialog"
+            aria-modal="true"
+            aria-label="AI suggestions"
+          >
+            <AIAssistant
+              context={aiContext}
+              onAccept={handleAIAccept}
+              onClose={() => setAiOpen(false)}
+            />
+          </div>
+        </>
+      )}
 
-        {atsOpen && (
+      {atsOpen && (
+        <>
+          <button
+            type="button"
+            className="editor-scrim"
+            onClick={() => setAtsOpen(false)}
+            aria-label="Close ATS score panel"
+          />
           <ATSScore
             resume={resume}
             onClose={() => setAtsOpen(false)}
           />
-        )}
-      </div>
+        </>
+      )}
     </div>
   );
 }
 
 function Field({ label, value, onChange, type = 'text', placeholder = '', rows, ai }) {
+  const inputId = useId();
+
   return (
     <div className="editor-field">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem', marginBottom: '0.375rem' }}>
-        <label className="label" style={{ margin: 0, flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{label}</label>
+        <label className="label" htmlFor={inputId} style={{ margin: 0, flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{label}</label>
         {ai && (
           <button
             className="ai-suggest-btn"
@@ -358,9 +470,9 @@ function Field({ label, value, onChange, type = 'text', placeholder = '', rows, 
         )}
       </div>
       {rows ? (
-        <textarea className="input" value={value || ''} onChange={e => onChange(e.target.value)} placeholder={placeholder} rows={rows} style={{ resize: 'vertical', minHeight: '80px' }} />
+        <textarea id={inputId} className="input" value={value || ''} onChange={e => onChange(e.target.value)} placeholder={placeholder} rows={rows} style={{ resize: 'vertical', minHeight: '80px' }} />
       ) : (
-        <input type={type} className="input" value={value || ''} onChange={e => onChange(e.target.value)} placeholder={placeholder} />
+        <input id={inputId} type={type} className="input" value={value || ''} onChange={e => onChange(e.target.value)} placeholder={placeholder} />
       )}
     </div>
   );

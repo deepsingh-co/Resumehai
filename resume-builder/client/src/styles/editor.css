@@ -1,0 +1,888 @@
+/* ==========================================================================
+   Editor — resume workspace
+   Header, design/section rail, paper canvas, and AI/ATS side panels.
+   Scoped to .editor-page so the legacy .editor-* rules in index.css do not
+   leak into this workspace.
+   ========================================================================== */
+
+.editor-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding-bottom: 0.5rem;
+  margin-bottom: -4rem;
+}
+
+.editor-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.9rem;
+  min-height: 60vh;
+  color: var(--app-muted);
+  font-size: 0.875rem;
+}
+
+.editor-spin {
+  animation: editor-spin 0.9s linear infinite;
+}
+
+@keyframes editor-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Top bar ------------------------------------------------------------------ */
+.editor-page .editor-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.65rem 0.75rem 0.65rem 0.85rem;
+  background: var(--app-surface);
+  border: 1px solid var(--app-line);
+  border-radius: 16px;
+  box-shadow: var(--app-shadow-sm);
+}
+
+.editor-page .editor-topbar__left {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  min-width: 0;
+}
+
+.editor-page .editor-back {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  background: var(--app-surface);
+  border: 1px solid var(--app-line);
+  border-radius: 10px;
+  color: var(--app-muted);
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.editor-page .editor-back:hover {
+  background: var(--app-primary-soft);
+  border-color: #bae6fd;
+  color: var(--app-primary-deep);
+}
+
+.editor-page .editor-topbar__title {
+  min-width: 0;
+}
+
+.editor-page .editor-topbar__eyebrow {
+  display: block;
+  margin-bottom: 0.1rem;
+  color: var(--app-primary-deep);
+  font-family: 'Poppins', 'Inter', sans-serif;
+  font-size: 0.5625rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.editor-page .editor-topbar__title h1 {
+  overflow: hidden;
+  max-width: 44ch;
+  color: var(--app-ink);
+  font-size: 1.02rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.editor-page .editor-topbar__badge {
+  flex-shrink: 0;
+  padding: 0.24rem 0.55rem;
+  background: var(--app-primary-soft);
+  border-radius: 999px;
+  color: var(--app-primary-deep);
+  font-family: 'Poppins', 'Inter', sans-serif;
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.editor-page .editor-topbar__actions {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Workspace ---------------------------------------------------------------- */
+.editor-page .editor-layout {
+  display: grid;
+  grid-template-columns: 392px minmax(0, 1fr);
+  gap: 1rem;
+  align-items: stretch;
+  height: clamp(480px, calc(100vh - 230px), 1080px);
+  min-height: 0;
+  overflow: visible;
+}
+
+/* Sidebar ------------------------------------------------------------------ */
+.editor-page .editor-sidebar {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--app-surface);
+  border: 1px solid var(--app-line);
+  border-radius: 18px;
+  box-shadow: var(--app-shadow-sm);
+}
+
+.editor-page .editor-sidebar::-webkit-scrollbar,
+.editor-page .editor-canvas::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.editor-page .editor-sidebar::-webkit-scrollbar-track,
+.editor-page .editor-canvas::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.editor-page .editor-sidebar::-webkit-scrollbar-thumb,
+.editor-page .editor-canvas::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border: 3px solid transparent;
+  border-radius: 999px;
+  background-clip: padding-box;
+}
+
+[data-theme="dark"] .editor-page .editor-sidebar::-webkit-scrollbar-thumb,
+[data-theme="dark"] .editor-page .editor-canvas::-webkit-scrollbar-thumb {
+  background: #334155;
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+
+.editor-page .editor-sidebar-top {
+  flex-shrink: 0;
+  padding: 1rem 1rem 0;
+}
+
+.editor-page .editor-panel-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.8rem;
+}
+
+.editor-page .editor-panel-heading h2 {
+  color: var(--app-ink);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.editor-page .editor-panel-heading > span {
+  color: var(--app-muted);
+  font-size: 0.6875rem;
+  font-weight: 500;
+}
+
+.editor-page .editor-panel-heading--sections {
+  margin: 1.1rem 1rem 0.7rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--app-line);
+}
+
+/* Form fields -------------------------------------------------------------- */
+.editor-page .editor-field {
+  min-width: 0;
+  margin-bottom: 0.75rem;
+}
+
+.editor-page .editor-field .label {
+  margin-bottom: 0.32rem;
+  color: var(--app-muted);
+  font-size: 0.7188rem;
+  font-weight: 600;
+}
+
+.editor-page .editor-field .input,
+.editor-page .editor-section-content .input {
+  width: 100%;
+  min-width: 0;
+  padding: 0.52rem 0.7rem;
+  background: var(--app-surface);
+  border: 1px solid var(--app-line);
+  border-radius: 9px;
+  color: var(--app-ink);
+  font-family: inherit;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  box-sizing: border-box;
+}
+
+.editor-page .editor-field textarea.input {
+  min-height: 74px;
+  resize: vertical;
+}
+
+.editor-page .editor-field .input::placeholder,
+.editor-page .editor-section-content .input::placeholder {
+  color: var(--app-muted);
+  opacity: 0.72;
+}
+
+.editor-page .editor-field .input:focus,
+.editor-page .editor-section-content .input:focus {
+  outline: none;
+  border-color: var(--app-primary);
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.16);
+}
+
+.editor-page select.input {
+  appearance: auto;
+}
+
+.editor-page .editor-field-hint {
+  margin-top: 0.32rem;
+  color: var(--app-muted);
+  font-size: 0.6875rem;
+  line-height: 1.45;
+}
+
+.editor-page input[type="checkbox"] {
+  width: 15px;
+  height: 15px;
+  accent-color: var(--app-primary);
+  cursor: pointer;
+}
+
+.editor-page input[type="date"] {
+  color-scheme: light;
+}
+
+[data-theme="dark"] .editor-page input[type="date"] {
+  color-scheme: dark;
+}
+
+/* Accent color & font ------------------------------------------------------ */
+.editor-page .color-picker-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.editor-page .color-swatch {
+  width: 29px;
+  height: 29px;
+  padding: 0;
+  background-clip: padding-box;
+  border: 2px solid var(--app-surface);
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px var(--app-line);
+  cursor: pointer;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.editor-page .color-swatch:hover {
+  transform: translateY(-1px) scale(1.06);
+}
+
+.editor-page .color-swatch.selected {
+  box-shadow:
+    0 0 0 2px var(--app-surface),
+    0 0 0 4px var(--app-primary);
+}
+
+.editor-page .color-swatch.custom-color {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--app-line-soft);
+  border: 1px dashed var(--app-line-strong, #cbd5e1);
+  box-shadow: none;
+  color: var(--app-muted);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.editor-page .color-swatch.custom-color:hover {
+  border-color: var(--app-primary);
+  color: var(--app-primary-deep);
+}
+
+.editor-page .color-swatch.custom-color:focus-within {
+  outline: 3px solid rgba(14, 165, 233, 0.45);
+  outline-offset: 2px;
+}
+
+.editor-page .font-selector {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.4rem;
+}
+
+.editor-page .font-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.45rem 0.2rem 0.4rem;
+  background: var(--app-surface);
+  border: 1.5px solid var(--app-line);
+  border-radius: 10px;
+  color: var(--app-ink);
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.editor-page .font-btn:hover {
+  border-color: #bae6fd;
+}
+
+.editor-page .font-btn.selected {
+  background: var(--app-primary-soft);
+  border-color: var(--app-primary);
+}
+
+[data-theme="dark"] .editor-page .font-btn.selected {
+  background: rgba(56, 189, 248, 0.09);
+  border-color: var(--app-primary);
+}
+
+.editor-page .font-preview {
+  font-size: 1.05rem;
+  font-weight: 600;
+  line-height: 1.1;
+}
+
+.editor-page .font-label {
+  color: var(--app-muted);
+  font-size: 0.5938rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.editor-page .font-btn.selected .font-label {
+  color: var(--app-primary-deep);
+}
+
+/* Sections ----------------------------------------------------------------- */
+.editor-page .editor-sections {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0 1rem 0.5rem;
+  overflow: visible;
+  min-height: 0;
+}
+
+.editor-page .editor-section {
+  margin: 0;
+  overflow: hidden;
+  background: var(--app-surface);
+  border: 1px solid var(--app-line);
+  border-radius: 11px;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.editor-page .editor-section:has(.editor-section-content) {
+  border-color: #bae6fd;
+  box-shadow: 0 10px 24px -22px rgba(12, 74, 110, 0.5);
+}
+
+[data-theme="dark"] .editor-page .editor-section:has(.editor-section-content) {
+  border-color: #1e4a6b;
+}
+
+.editor-page .editor-section .editor-section__toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  width: 100%;
+  min-height: 0;
+  padding: 0.58rem 0.7rem;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  color: var(--app-ink);
+  font-family: 'Poppins', 'Inter', sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.editor-page .editor-section .editor-section__toggle:hover {
+  background: var(--app-line-soft);
+  color: var(--app-ink);
+}
+
+.editor-page .editor-section__meta {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 0.45rem;
+  color: var(--app-muted);
+}
+
+.editor-page .editor-section__meta .badge {
+  min-width: 20px;
+  justify-content: center;
+  padding: 0.14rem 0.4rem;
+  font-size: 0.625rem;
+}
+
+.editor-page .editor-section-content {
+  min-width: 0;
+  padding: 0.3rem 0.7rem 0.7rem;
+  border-top: 1px solid var(--app-line-soft);
+  background: var(--app-surface);
+}
+
+.editor-page .editor-section-content .editor-field {
+  min-width: 0;
+}
+
+.editor-page .editor-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.55rem;
+}
+
+.editor-page .editor-row .editor-field {
+  margin-bottom: 0.75rem;
+}
+
+/* Repeating item editors --------------------------------------------------- */
+.editor-page .item-editor {
+  margin-bottom: 0.55rem;
+  padding: 0.65rem 0.65rem 0.05rem;
+  background: var(--app-line-soft);
+  border: 1px solid var(--app-line);
+  border-radius: 10px;
+}
+
+.editor-page .item-editor-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.55rem;
+}
+
+.editor-page .item-editor-title {
+  overflow: hidden;
+  color: var(--app-ink-soft);
+  font-family: 'Poppins', 'Inter', sans-serif;
+  font-size: 0.7188rem;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.editor-page .item-editor-header .btn-ghost {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  min-height: 0;
+  padding: 0;
+  color: var(--color-error);
+}
+
+.editor-page .item-editor-header .btn-ghost:hover {
+  background: rgba(185, 28, 28, 0.08);
+  color: var(--color-error);
+}
+
+.editor-page .editor-section-content > div > .btn-ghost {
+  margin-top: 0.15rem;
+  padding: 0.55rem 0.75rem;
+  background: transparent;
+  border: 1px dashed var(--app-line-strong, #cbd5e1);
+  border-radius: 9px;
+  color: var(--app-primary-deep);
+  font-size: 0.8125rem;
+}
+
+.editor-page .editor-section-content > div > .btn-ghost:hover {
+  background: var(--app-primary-soft);
+  border-color: var(--app-primary);
+  color: var(--app-primary-deep);
+}
+
+/* AI sparkle buttons ------------------------------------------------------- */
+.editor-page .ai-suggest-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  background: var(--app-primary-soft);
+  border: 1px solid #bae6fd;
+  border-radius: 7px;
+  color: var(--app-primary-deep);
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+[data-theme="dark"] .editor-page .ai-suggest-btn {
+  border-color: #1e4a6b;
+}
+
+.editor-page .ai-suggest-btn:hover {
+  background: var(--app-primary);
+  border-color: var(--app-primary);
+  color: #ffffff;
+}
+
+/* Profile photo ------------------------------------------------------------ */
+.editor-page .profile-photo-upload {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.editor-page .profile-photo-img {
+  width: 62px;
+  height: 62px;
+  border: 2px solid var(--app-line);
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.editor-page .profile-photo-remove {
+  border-color: var(--app-surface);
+}
+
+/* Sidebar footer ----------------------------------------------------------- */
+.editor-page .editor-sidebar-foot {
+  position: sticky;
+  bottom: 0;
+  z-index: 3;
+  flex-shrink: 0;
+  margin-top: auto;
+  padding: 0.75rem 1rem 1rem;
+  background: linear-gradient(to top, var(--app-surface) 78%, rgba(255, 255, 255, 0));
+  border-top: 1px solid var(--app-line-soft);
+}
+
+[data-theme="dark"] .editor-page .editor-sidebar-foot {
+  background: linear-gradient(to top, var(--app-surface) 78%, rgba(17, 28, 46, 0));
+}
+
+/* Preview canvas ----------------------------------------------------------- */
+.editor-page .editor-preview {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: #eaf6ff;
+  background-image: radial-gradient(rgba(12, 74, 110, 0.13) 1px, transparent 1px);
+  background-size: 18px 18px;
+  border: 1px solid var(--app-line);
+  border-radius: 18px;
+  box-shadow: var(--app-shadow-sm);
+}
+
+[data-theme="dark"] .editor-page .editor-preview {
+  background-color: #0b1220;
+  background-image: radial-gradient(rgba(148, 163, 184, 0.16) 1px, transparent 1px);
+}
+
+.editor-page .editor-preview__toolbar {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 0;
+  padding: 0.6rem 0.9rem;
+  background: var(--app-surface-glass);
+  border-bottom: 1px solid var(--app-line);
+  backdrop-filter: blur(12px);
+}
+
+.editor-page .editor-preview__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--app-ink-soft);
+  font-family: 'Poppins', 'Inter', sans-serif;
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.editor-page .editor-preview__label svg {
+  color: var(--app-primary-deep);
+}
+
+.editor-page .editor-preview__hint {
+  color: var(--app-muted);
+  font-size: 0.6875rem;
+  font-weight: 500;
+}
+
+.editor-page .editor-canvas {
+  flex: 1;
+  min-height: 0;
+  padding: 1.15rem;
+  overflow: auto;
+}
+
+.editor-page .editor-canvas .resume-preview {
+  width: 100%;
+  min-height: 720px;
+  border-radius: 8px;
+}
+
+/* AI + ATS side panels ----------------------------------------------------- */
+.editor-page .editor-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  padding: 0;
+  background: rgba(8, 47, 73, 0.42);
+  border: 0;
+  backdrop-filter: blur(3px);
+  cursor: pointer;
+}
+
+.editor-page .editor-side-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 310;
+  display: flex;
+  flex-direction: column;
+  width: min(430px, 100vw);
+  overflow: hidden;
+  background: var(--app-surface);
+  border-left: 1px solid var(--app-line);
+  box-shadow: var(--app-shadow-lg);
+  animation: editor-slide-in 0.22s ease-out;
+}
+
+.editor-page .editor-side-panel > * {
+  flex: 1;
+  min-height: 0;
+}
+
+.editor-page .ats-panel {
+  z-index: 310;
+  width: min(430px, 100vw);
+  background: var(--app-surface);
+  border-left-color: var(--app-line);
+  box-shadow: var(--app-shadow-lg);
+  animation: editor-slide-in 0.22s ease-out;
+}
+
+.editor-page .ats-header {
+  background: var(--app-surface);
+  border-bottom-color: var(--app-line);
+}
+
+.editor-page .ats-header-left {
+  color: var(--app-primary-deep);
+}
+
+.editor-page .ats-body {
+  background: var(--app-surface);
+}
+
+.editor-page .ats-panel .btn-primary {
+  background: var(--app-primary);
+  color: #ffffff;
+}
+
+@keyframes editor-slide-in {
+  from {
+    opacity: 0.5;
+    transform: translateX(28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Responsive --------------------------------------------------------------- */
+@media (max-width: 1180px) {
+  .editor-page .editor-layout {
+    grid-template-columns: 348px minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 980px) {
+  .editor-page {
+    margin-bottom: 0;
+  }
+
+  .editor-page .editor-layout {
+    grid-template-columns: 1fr;
+    height: auto;
+    min-height: 0;
+  }
+
+  .editor-page .editor-sidebar {
+    max-height: none;
+    overflow: visible;
+  }
+
+  .editor-page .editor-sidebar-foot {
+    position: static;
+    margin-top: 0;
+  }
+
+  .editor-page .editor-preview {
+    min-height: 72vh;
+  }
+
+  .editor-page .editor-canvas {
+    padding: 1.25rem;
+  }
+}
+
+@media (max-width: 700px) {
+  .editor-page .editor-topbar {
+    flex-wrap: wrap;
+    padding: 0.7rem;
+    border-radius: 14px;
+  }
+
+  .editor-page .editor-topbar__left {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .editor-page .editor-topbar__badge {
+    display: none;
+  }
+
+  .editor-page .editor-topbar__title h1 {
+    max-width: 100%;
+    font-size: 0.9375rem;
+  }
+
+  .editor-page .editor-topbar__actions {
+    width: 100%;
+  }
+
+  .editor-page .editor-topbar__actions .btn {
+    flex: 1;
+  }
+
+  .editor-page .editor-sidebar {
+    border-radius: 14px;
+  }
+
+  .editor-page .editor-sidebar-top {
+    padding: 0.9rem 0.85rem 0;
+  }
+
+  .editor-page .editor-panel-heading--sections {
+    margin: 1rem 0.85rem 0.65rem;
+  }
+
+  .editor-page .editor-sections {
+    padding: 0 0.85rem 0.4rem;
+  }
+
+  .editor-page .editor-sidebar-foot {
+    padding: 0.75rem 0.85rem 0.9rem;
+  }
+
+  .editor-page .editor-preview {
+    min-height: 64vh;
+    border-radius: 14px;
+  }
+
+  .editor-page .editor-canvas {
+    padding: 0.75rem;
+  }
+
+  .editor-page .editor-canvas .resume-preview {
+    min-height: 0;
+    border-radius: 6px;
+  }
+}
+
+@media (max-width: 460px) {
+  .editor-page .editor-topbar__btn-label {
+    display: none;
+  }
+
+  .editor-page .editor-topbar__actions .btn {
+    gap: 0;
+  }
+
+  .editor-page .editor-row {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .editor-page .font-selector {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .editor-page .editor-preview__hint {
+    display: none;
+  }
+
+  .editor-page .editor-canvas {
+    padding: 0.5rem;
+  }
+
+  .editor-page .editor-side-panel,
+  .editor-page .ats-panel {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .editor-page .editor-side-panel,
+  .editor-page .ats-panel {
+    animation: none;
+  }
+
+  .editor-page .editor-spin {
+    animation-duration: 1.4s;
+  }
+}
