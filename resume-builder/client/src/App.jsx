@@ -8,6 +8,7 @@ import Dashboard from './pages/Dashboard';
 import Editor from './pages/Editor';
 import Preview from './pages/Preview';
 import Settings from './pages/Settings';
+import ResumeChat from './components/ResumeChat';
 import LoadingSpinner from './components/LoadingSpinner';
 import './styles/app-shell.css';
 
@@ -80,6 +81,7 @@ function App() {
           </Routes>
         </div>
       </main>
+      {isAuthenticated && !isFullBleed && <ResumeChat />}
     </div>
   );
 }

@@ -32,6 +32,14 @@ The public landing page was rebuilt with a minimal Swiss-inspired design system 
 - **Strengths and improvements** — Actionable suggestions to improve the resume
 - **Local fallback scoring** — ATS analysis works even without an OpenAI API key
 
+### Resume Coach
+
+- **Floating chat assistant** — Available on every signed-in page without leaving the editor
+- **Resume-aware answers** — Uses the resume open in the editor or preview, with a selector to switch context
+- **Job-description matching** — Paste a posting to find matched and missing keywords
+- **Quick prompts and follow-ups** — Start from suggested questions and get section-specific guidance
+- **Works without an API key** — A guided local coach covers ATS, summaries, skills, metrics, gaps, cover letters, and interviews
+
 ### Landing page
 
 - **New responsive design** — Minimal Swiss layout with a sky-blue and warm-CTA palette
